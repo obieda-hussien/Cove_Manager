@@ -1,0 +1,65 @@
+{
+  "allFiles": [
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Cove Manager/settings.gradle",
+      "selection": {
+        "end": {
+          "column": 1,
+          "index": 691,
+          "line": 24
+        },
+        "start": {
+          "column": 1,
+          "index": 691,
+          "line": 24
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Cove Manager/build.gradle",
+      "selection": {
+        "end": {
+          "column": 39,
+          "index": 39,
+          "line": 0
+        },
+        "start": {
+          "column": 39,
+          "index": 39,
+          "line": 0
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Cove Manager/app/build.gradle",
+      "selection": {
+        "end": {
+          "column": 32,
+          "index": 508,
+          "line": 29
+        },
+        "start": {
+          "column": 32,
+          "index": 508,
+          "line": 29
+        }
+      }
+    },
+    {
+      "file": "/storage/emulated/0/AndroidIDEProjects/Cove Manager/app/src/main/AndroidManifest.xml",
+      "selection": {
+        "end": {
+          "column": 80,
+          "index": 1279,
+          "line": 28
+        },
+        "start": {
+          "column": 80,
+          "index": 1279,
+          "line": 28
+        }
+      }
+    }
+  ],
+  "selectedFile": "/storage/emulated/0/AndroidIDEProjects/Cove Manager/app/build.gradle"
+}

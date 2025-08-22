@@ -1,0 +1,62 @@
+
+plugins {
+    id 'com.android.application'
+    
+}
+
+android {
+    namespace 'com.covemanager'
+    compileSdk 34
+    
+    defaultConfig {
+        applicationId "com.covemanager"
+        minSdk 21
+        targetSdk 34
+        versionCode 1
+        versionName "1.0"
+        
+        vectorDrawables { 
+            useSupportLibrary true
+        }
+    }
+    
+    buildFeatures {
+        buildConfig = true
+    }
+
+    buildTypes {
+        release {
+            minifyEnabled true
+            shrinkResources true
+            proguardFiles getDefaultProguardFile('proguard-android-optimize.txt'), 'proguard-rules.pro'
+        }
+    }
+    
+    lint {
+        abortOnError = false
+        checkReleaseBuilds = false
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_1_8
+        targetCompatibility JavaVersion.VERSION_1_8
+    }
+
+    buildFeatures {
+        viewBinding true
+        
+    }
+    
+}
+
+dependencies {
+    implementation("com.google.android.material:material:1.10.0")
+    implementation("androidx.appcompat:appcompat:1.6.1")
+    implementation("androidx.constraintlayout:constraintlayout:2.1.4")
+    implementation("com.github.Dimezis:BlurView:version-2.0.0")
+    implementation("androidx.dynamicanimation:dynamicanimation:1.0.0")
+    implementation("com.facebook.rebound:rebound:0.3.8")
+    implementation("androidx.palette:palette:1.0.0")
+    implementation("androidx.work:work-runtime:2.8.1")
+    
+}
