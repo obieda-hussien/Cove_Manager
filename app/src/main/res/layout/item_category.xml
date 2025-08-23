@@ -10,9 +10,9 @@
     <!-- Category Icon with Circular Background -->
     <com.google.android.material.imageview.ShapeableImageView
         android:id="@+id/iv_category_icon"
-        android:layout_width="64dp"
-        android:layout_height="64dp"
-        android:padding="16dp"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:padding="12dp"
         android:scaleType="fitCenter"
         android:background="@color/categoryImages"
         android:src="@drawable/ic_image"
