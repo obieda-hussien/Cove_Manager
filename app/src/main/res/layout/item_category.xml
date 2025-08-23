@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="8dp"
+    android:gravity="center">
+
+    <!-- Category Icon with Circular Background -->
+    <com.google.android.material.imageview.ShapeableImageView
+        android:id="@+id/iv_category_icon"
+        android:layout_width="64dp"
+        android:layout_height="64dp"
+        android:padding="16dp"
+        android:scaleType="fitCenter"
+        android:background="@color/categoryImages"
+        android:src="@drawable/ic_image"
+        app:tint="@android:color/white"
+        app:shapeAppearanceOverlay="@style/ShapeAppearance.Material3.Corner.Full"
+        android:layout_marginBottom="8dp" />
+
+    <!-- Category Name -->
+    <TextView
+        android:id="@+id/tv_category_name"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Images"
+        android:textColor="@color/textColorPrimary"
+        android:textSize="14sp"
+        android:textAlignment="center"
+        android:gravity="center" />
+
+</LinearLayout>
