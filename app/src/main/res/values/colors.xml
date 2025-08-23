@@ -9,11 +9,11 @@
     <color name="textColorSecondary">#718096</color>
     <color name="colorIconTint">#8A96A8</color>
     
-    <!-- Category colors for file types -->
-    <color name="categoryImages">#E6FFFA</color>
-    <color name="categoryVideos">#EBF8FF</color>
-    <color name="categoryAudio">#FFF5F5</color>
-    <color name="categoryDocuments">#F7FAFC</color>
-    <color name="categoryDownloads">#FFFAF0</color>
-    <color name="categoryApks">#F0FFF4</color>
+    <!-- Category colors for file types - Refined pastel shades -->
+    <color name="categoryImages">#A7F0BA</color>
+    <color name="categoryVideos">#B7E1CD</color>
+    <color name="categoryAudio">#FFDA9E</color>
+    <color name="categoryDocuments">#D8BFD8</color>
+    <color name="categoryDownloads">#FCE78C</color>
+    <color name="categoryApks">#FF9AA2</color>
 </resources>
