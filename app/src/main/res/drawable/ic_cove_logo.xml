@@ -1,0 +1,30 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="64dp"
+    android:height="64dp"
+    android:viewportWidth="64"
+    android:viewportHeight="64">
+    
+    <!-- Circular background -->
+    <path
+        android:fillColor="@color/colorPrimary"
+        android:pathData="M32,32m-30,0a30,30 0,1 1,60 0a30,30 0,1 1,-60 0" />
+    
+    <!-- Stylized 'C' that curves around a folder icon -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:pathData="M24,20 L40,20 Q42,20 42,22 L42,24 L44,24 Q46,24 46,26 L46,42 Q46,44 44,44 L20,44 Q18,44 18,42 L18,26 Q18,24 20,24 L22,24 L22,22 Q22,20 24,20 Z" />
+    
+    <!-- Inner folder detail -->
+    <path
+        android:fillColor="@color/colorPrimary"
+        android:pathData="M20,26 L44,26 L44,42 L20,42 Z" />
+    
+    <!-- 'C' curve overlay -->
+    <path
+        android:fillColor="#FFFFFF"
+        android:strokeWidth="3"
+        android:strokeColor="#FFFFFF"
+        android:fillType="evenOdd"
+        android:pathData="M32,16 Q40,16 44,22 Q46,26 44,30 Q40,36 32,36"
+        android:strokeLineCap="round" />
+</vector>

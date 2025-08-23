@@ -1,2 +1,19 @@
 <?xml version="1.0" encoding="utf-8"?>
-<resources></resources>
+<resources>
+    <!-- Core app colors inspired by clean, modern design -->
+    <color name="colorPrimary">#4A69FF</color>
+    <color name="colorPrimaryDark">#3B54CC</color>
+    <color name="colorBackground">#F5F7FA</color>
+    <color name="colorCardBackground">#FFFFFF</color>
+    <color name="textColorPrimary">#2D3748</color>
+    <color name="textColorSecondary">#718096</color>
+    <color name="colorIconTint">#8A96A8</color>
+    
+    <!-- Category colors for file types -->
+    <color name="categoryImages">#E6FFFA</color>
+    <color name="categoryVideos">#EBF8FF</color>
+    <color name="categoryAudio">#FFF5F5</color>
+    <color name="categoryDocuments">#F7FAFC</color>
+    <color name="categoryDownloads">#FFFAF0</color>
+    <color name="categoryApks">#F0FFF4</color>
+</resources>

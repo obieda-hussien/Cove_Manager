@@ -1,9 +1,33 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-  <!-- Base application theme. -->
-  <style name="Base.AppTheme" parent="Theme.Material3.DayNight.NoActionBar">
-    <!-- Customize your theme here. -->
-    <!-- <item name="colorPrimary">@color/my_light_primary</item> -->
+  <!-- Base application theme using Material Components -->
+  <style name="Theme.CoveManager" parent="Theme.MaterialComponents.DayNight.NoActionBar">
+    <!-- Primary colors -->
+    <item name="colorPrimary">@color/colorPrimary</item>
+    <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
+    <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
+    
+    <!-- Background colors -->
+    <item name="android:windowBackground">@color/colorBackground</item>
+    <item name="colorSurface">@color/colorCardBackground</item>
+    
+    <!-- Text colors -->
+    <item name="android:textColorPrimary">@color/textColorPrimary</item>
+    <item name="android:textColorSecondary">@color/textColorSecondary</item>
+    
+    <!-- Status bar -->
+    <item name="android:statusBarColor">@color/colorPrimaryDark</item>
+    <item name="android:windowLightStatusBar">false</item>
+    
+    <!-- Use system default font family -->
+    <item name="android:fontFamily">sans-serif</item>
   </style>
 
-  <style name="AppTheme" parent="Base.AppTheme" />
+  <!-- Alias for compatibility -->
+  <style name="AppTheme" parent="Theme.CoveManager" />
+  
+  <!-- Shape appearance for circular images -->
+  <style name="ShapeAppearance.Material3.Corner.Full" parent="">
+    <item name="cornerFamily">rounded</item>
+    <item name="cornerSize">50%</item>
+  </style>
 </resources>
