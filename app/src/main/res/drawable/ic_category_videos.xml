@@ -1,0 +1,27 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Screen with rounded corners -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M19,6.5c0,-1.38 -1.12,-2.5 -2.5,-2.5H7.5c-1.38,0 -2.5,1.12 -2.5,2.5v11c0,1.38 1.12,2.5 2.5,2.5h9c1.38,0 2.5,-1.12 2.5,-2.5V6.5zM17.5,17.5H6.5V6.5h11V17.5z"/>
+    
+    <!-- Play button triangle with rounded corners -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M10.5,8.5c0,-0.28 0.31,-0.45 0.55,-0.31l4.5,2.5c0.19,0.11 0.19,0.39 0,0.5l-4.5,2.5c-0.24,0.13 -0.55,-0.04 -0.55,-0.31V8.5z"/>
+    
+    <!-- Small rounded indicator dots -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M10,14.8c-0.39,0 -0.7,0.31 -0.7,0.7s0.31,0.7 0.7,0.7s0.7,-0.31 0.7,-0.7s-0.31,-0.7 -0.7,-0.7z"/>
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,14.8c-0.39,0 -0.7,0.31 -0.7,0.7s0.31,0.7 0.7,0.7s0.7,-0.31 0.7,-0.7s-0.31,-0.7 -0.7,-0.7z"/>
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M14,14.8c-0.39,0 -0.7,0.31 -0.7,0.7s0.31,0.7 0.7,0.7s0.7,-0.31 0.7,-0.7s-0.31,-0.7 -0.7,-0.7z"/>
+</vector>

@@ -1,0 +1,39 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    
+    <!-- Package box with rounded corners -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M18.5,4.5c0.83,0 1.5,0.67 1.5,1.5v12c0,0.83 -0.67,1.5 -1.5,1.5h-13c-0.83,0 -1.5,-0.67 -1.5,-1.5V6c0,-0.83 0.67,-1.5 1.5,-1.5H18.5zM18,18V6H6v12H18z"/>
+    
+    <!-- Android robot head (simplified with rounded features) -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M12,7.5c-1.38,0 -2.5,1.12 -2.5,2.5s1.12,2.5 2.5,2.5s2.5,-1.12 2.5,-2.5s-1.12,-2.5 -2.5,-2.5z"/>
+    
+    <!-- Rounded antenna left -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M10.5,7c0.28,0 0.5,0.22 0.5,0.5V9c0,0.28 -0.22,0.5 -0.5,0.5s-0.5,-0.22 -0.5,-0.5V7.5c0,-0.28 0.22,-0.5 0.5,-0.5z"/>
+    
+    <!-- Rounded antenna right -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M13.5,7c0.28,0 0.5,0.22 0.5,0.5V9c0,0.28 -0.22,0.5 -0.5,0.5s-0.5,-0.22 -0.5,-0.5V7.5c0,-0.28 0.22,-0.5 0.5,-0.5z"/>
+    
+    <!-- Robot eyes (small rounded dots) -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M11,9.2c-0.17,0 -0.3,0.13 -0.3,0.3s0.13,0.3 0.3,0.3s0.3,-0.13 0.3,-0.3s-0.13,-0.3 -0.3,-0.3z"/>
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M13,9.2c-0.17,0 -0.3,0.13 -0.3,0.3s0.13,0.3 0.3,0.3s0.3,-0.13 0.3,-0.3s-0.13,-0.3 -0.3,-0.3z"/>
+    
+    <!-- Rounded body base -->
+    <path
+        android:fillColor="@android:color/white"
+        android:pathData="M9.5,12c-0.28,0 -0.5,0.22 -0.5,0.5v2c0,0.28 0.22,0.5 0.5,0.5h5c0.28,0 0.5,-0.22 0.5,-0.5v-2c0,-0.28 -0.22,-0.5 -0.5,-0.5H9.5z"/>
+</vector>
