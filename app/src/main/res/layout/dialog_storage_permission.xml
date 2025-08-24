@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:padding="24dp"
+    android:background="@drawable/dialog_background">
+
+    <!-- Title -->
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Storage Permission"
+        android:textColor="@color/textColorPrimary"
+        android:textSize="20sp"
+        android:textStyle="bold"
+        android:layout_marginBottom="16dp" />
+
+    <!-- Description -->
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Due to system restrictions, Cove Manager requires permission to access all files to function correctly."
+        android:textColor="@color/textColorSecondary"
+        android:textSize="16sp"
+        android:lineSpacingExtra="4dp"
+        android:layout_marginBottom="24dp" />
+
+    <!-- Allow Permission Button -->
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/btn_allow_permission"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:text="Allow Permission"
+        android:textColor="@android:color/white"
+        app:backgroundTint="@color/colorPrimary"
+        app:cornerRadius="8dp"
+        xmlns:app="http://schemas.android.com/apk/res-auto" />
+
+</LinearLayout>
