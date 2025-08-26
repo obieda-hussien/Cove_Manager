@@ -46,12 +46,12 @@ public class MainActivity extends AppCompatActivity {
     private void setupCategoriesRecyclerView() {
         // Create category data
         List<Category> categories = new ArrayList<>();
-        categories.add(new Category("Images", R.drawable.ic_image, R.color.categoryImages));
-        categories.add(new Category("Videos", R.drawable.ic_video, R.color.categoryVideos));
-        categories.add(new Category("Audio", R.drawable.ic_audio, R.color.categoryAudio));
-        categories.add(new Category("Documents", R.drawable.ic_document, R.color.categoryDocuments));
-        categories.add(new Category("Downloads", R.drawable.ic_download, R.color.categoryDownloads));
-        categories.add(new Category("APKs", R.drawable.ic_apk, R.color.categoryApks));
+        categories.add(new Category("Images", R.drawable.ic_category_images, R.color.categoryImages));
+        categories.add(new Category("Videos", R.drawable.ic_category_videos, R.color.categoryVideos));
+        categories.add(new Category("Audio", R.drawable.ic_category_audio, R.color.categoryAudio));
+        categories.add(new Category("Documents", R.drawable.ic_category_documents, R.color.categoryDocuments));
+        categories.add(new Category("Downloads", R.drawable.ic_category_downloads, R.color.categoryDownloads));
+        categories.add(new Category("APKs", R.drawable.ic_category_apks, R.color.categoryApks));
 
         // Set up RecyclerView
         categoryAdapter = new CategoryAdapter(categories);

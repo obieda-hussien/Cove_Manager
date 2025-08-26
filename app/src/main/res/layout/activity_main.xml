@@ -100,8 +100,7 @@
                             android:id="@+id/iv_internal_icon"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/ic_smartphone"
-                            app:tint="@color/colorPrimary"
+                            android:src="@drawable/ic_storage_internal"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent" />
 
@@ -164,8 +163,7 @@
                             android:id="@+id/iv_sd_icon"
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/ic_sd_card"
-                            app:tint="@color/colorIconTint"
+                            android:src="@drawable/ic_storage_sd"
                             app:layout_constraintTop_toTopOf="parent"
                             app:layout_constraintStart_toStartOf="parent" />
 
@@ -237,8 +235,7 @@
                         <ImageView
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/ic_secure_folder"
-                            app:tint="@color/colorPrimary"
+                            android:src="@drawable/ic_tool_secure_folder"
                             android:layout_marginEnd="16dp" />
 
                         <TextView
@@ -271,8 +268,7 @@
                         <ImageView
                             android:layout_width="32dp"
                             android:layout_height="32dp"
-                            android:src="@drawable/ic_file_cleaner"
-                            app:tint="@color/colorPrimary"
+                            android:src="@drawable/ic_tool_file_cleaner"
                             android:layout_marginEnd="16dp" />
 
                         <TextView
