@@ -158,8 +158,8 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
                     ContextCompat.getColor(context, R.color.colorPrimary));
                 binding.getRoot().setAlpha(0.1f);
             } else {
-                binding.getRoot().setBackground(
-                    ContextCompat.getDrawable(context, android.R.attr.selectableItemBackground));
+                // Reset to default background (already set in XML with ?attr/selectableItemBackground)
+                binding.getRoot().setBackground(null);
                 binding.getRoot().setAlpha(1.0f);
             }
 
