@@ -84,8 +84,8 @@ public class MainActivity extends AppCompatActivity {
     private void setupTools() {
         // File Cleaner tool click listener
         binding.toolFileCleaner.setOnClickListener(v -> {
-            // TODO: Start FileCleanerActivity (Phase 8)
-            android.widget.Toast.makeText(this, "File Cleaner coming soon", android.widget.Toast.LENGTH_SHORT).show();
+            Intent intent = new Intent(this, FileCleanerActivity.class);
+            startActivity(intent);
         });
 
         // Secure Folder tool click listener

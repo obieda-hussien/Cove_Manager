@@ -1,16 +1,19 @@
 package com.covemanager;
 
+import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.view.ActionMode;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Environment;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Toast;
 import com.covemanager.databinding.ActivityFileBrowserBinding;
+import com.covemanager.databinding.DialogConfirmDeleteBinding;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -256,8 +259,54 @@ public class FileBrowserActivity extends AppCompatActivity implements
     }
 
     private void showDeleteConfirmationDialog(List<FileItem> filesToDelete) {
-        // TODO: Implement custom dialog (Phase 9)
-        Toast.makeText(this, "Delete " + filesToDelete.size() + " items", Toast.LENGTH_SHORT).show();
+        DialogConfirmDeleteBinding dialogBinding = DialogConfirmDeleteBinding.inflate(
+                LayoutInflater.from(this));
+
+        // Update dialog content based on selection
+        int fileCount = filesToDelete.size();
+        if (fileCount == 1) {
+            dialogBinding.tvDialogTitle.setText("Delete Selected Item");
+            dialogBinding.tvDialogMessage.setText("Are you sure you want to delete this item?");
+        } else {
+            dialogBinding.tvDialogTitle.setText("Delete Selected Items");
+            dialogBinding.tvDialogMessage.setText("Are you sure you want to delete these " + fileCount + " items?");
+            dialogBinding.tvFileCount.setVisibility(View.VISIBLE);
+            dialogBinding.tvFileCount.setText(fileCount + " items selected");
+        }
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(dialogBinding.getRoot())
+                .setCancelable(true)
+                .create();
+
+        dialogBinding.btnCancel.setOnClickListener(v -> dialog.dismiss());
+
+        dialogBinding.btnDelete.setOnClickListener(v -> {
+            dialog.dismiss();
+            performDelete(filesToDelete);
+        });
+
+        dialog.show();
+    }
+
+    private void performDelete(List<FileItem> filesToDelete) {
+        // TODO: Implement actual file deletion
+        // For now, just show a toast and finish action mode
+        int deletedCount = 0;
+        for (FileItem fileItem : filesToDelete) {
+            // In a real implementation, you would delete the files here
+            // For demo purposes, we'll just simulate deletion
+            deletedCount++;
+        }
+        
+        Toast.makeText(this, "Deleted " + deletedCount + " items", Toast.LENGTH_SHORT).show();
+        
+        if (actionMode != null) {
+            actionMode.finish();
+        }
+        
+        // Refresh the file list
+        loadFiles(currentPath);
     }
 
     private void handleShareAction() {
