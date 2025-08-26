@@ -150,7 +150,19 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
 
             // Handle selection mode
             binding.cbFileSelect.setVisibility(isSelectionMode ? View.VISIBLE : View.GONE);
+            
+            // 1. Unset the listener to prevent the notification loop
+            binding.cbFileSelect.setOnCheckedChangeListener(null);
+            
+            // 2. Set the current checked state from the data model
             binding.cbFileSelect.setChecked(fileItem.isSelected());
+            
+            // 3. Re-set the listener to handle user interactions
+            binding.cbFileSelect.setOnCheckedChangeListener((buttonView, isChecked) -> {
+                if (isSelectionMode) {
+                    toggleSelection(position);
+                }
+            });
             
             // Set background based on selection
             if (fileItem.isSelected() && isSelectionMode) {
@@ -177,14 +189,6 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
                     onFileLongClickListener.onFileLongClick(fileItem, position);
                 }
                 return true;
-            });
-
-            binding.cbFileSelect.setOnCheckedChangeListener((buttonView, isChecked) -> {
-                if (isSelectionMode) {
-                    if (isChecked != fileItem.isSelected()) {
-                        toggleSelection(position);
-                    }
-                }
             });
         }
 
