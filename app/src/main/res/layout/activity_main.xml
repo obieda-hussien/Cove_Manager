@@ -82,11 +82,15 @@
 
                 <!-- Internal Storage Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_internal_storage"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginEnd="8dp"
                     android:layout_margin="4dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/colorCardBackground"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="1dp">
@@ -145,11 +149,15 @@
 
                 <!-- SD Card Storage Card -->
                 <com.google.android.material.card.MaterialCardView
+                    android:id="@+id/card_sd_storage"
                     android:layout_width="0dp"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
                     android:layout_marginStart="8dp"
                     android:layout_margin="4dp"
+                    android:clickable="true"
+                    android:focusable="true"
+                    android:foreground="?attr/selectableItemBackground"
                     app:cardBackgroundColor="@color/colorCardBackground"
                     app:cardCornerRadius="12dp"
                     app:cardElevation="1dp">
