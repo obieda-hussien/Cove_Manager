@@ -39,6 +39,12 @@ public class MainActivity extends AppCompatActivity {
         // Set up categories RecyclerView
         setupCategoriesRecyclerView();
 
+        // Set up storage card click listeners
+        setupStorageCards();
+
+        // Set up tools click listeners
+        setupTools();
+
         // Check storage permission
         checkStoragePermission();
     }
@@ -57,6 +63,35 @@ public class MainActivity extends AppCompatActivity {
         categoryAdapter = new CategoryAdapter(categories);
         binding.rvCategories.setLayoutManager(new GridLayoutManager(this, 3));
         binding.rvCategories.setAdapter(categoryAdapter);
+    }
+
+    private void setupStorageCards() {
+        // Internal Storage card click listener
+        binding.cardInternalStorage.setOnClickListener(v -> {
+            Intent intent = new Intent(this, FileBrowserActivity.class);
+            intent.putExtra(FileBrowserActivity.EXTRA_PATH, Environment.getExternalStorageDirectory().getAbsolutePath());
+            intent.putExtra(FileBrowserActivity.EXTRA_TITLE, "Internal Storage");
+            startActivity(intent);
+        });
+
+        // SD Card storage click listener
+        binding.cardSdStorage.setOnClickListener(v -> {
+            // TODO: Implement SD card detection and browsing
+            android.widget.Toast.makeText(this, "SD Card not detected", android.widget.Toast.LENGTH_SHORT).show();
+        });
+    }
+
+    private void setupTools() {
+        // File Cleaner tool click listener
+        binding.toolFileCleaner.setOnClickListener(v -> {
+            Intent intent = new Intent(this, FileCleanerActivity.class);
+            startActivity(intent);
+        });
+
+        // Secure Folder tool click listener
+        binding.toolSecureFolder.setOnClickListener(v -> {
+            android.widget.Toast.makeText(this, "Secure Folder feature", android.widget.Toast.LENGTH_SHORT).show();
+        });
     }
 
     private void checkStoragePermission() {
