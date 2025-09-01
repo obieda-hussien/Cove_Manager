@@ -264,8 +264,8 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
                 binding.pbCalculating.setVisibility(View.GONE);
             }
 
-            // Set click listeners
-            binding.getRoot().setOnClickListener(v -> {
+            // Set click listeners on the ConstraintLayout that actually receives the clicks
+            binding.constraintLayoutRoot.setOnClickListener(v -> {
                 if (isSelectionMode) {
                     // In selection mode, clicking toggles selection
                     toggleSelection(getAdapterPosition());
@@ -277,7 +277,7 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
                 }
             });
 
-            binding.getRoot().setOnLongClickListener(v -> {
+            binding.constraintLayoutRoot.setOnLongClickListener(v -> {
                 if (!isSelectionMode) {
                     // Start selection mode on long press
                     startSelectionMode();
