@@ -1,10 +1,16 @@
 package com.covemanager;
 
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.os.Environment;
+import android.os.SystemClock;
 import android.util.Log;
 import android.widget.Toast;
+import java.io.BufferedReader;
 import java.io.File;
+import java.io.FileReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.PrintWriter;
@@ -20,11 +26,14 @@ import java.util.Locale;
 public class DebugErrorTracker {
     private static final String TAG = "DebugErrorTracker";
     private static final String ERROR_LOG_FILE = "cove_manager_errors.log";
+    private static final String CRASH_RESTART_FILE = "crash_restart_data.txt";
     private static final boolean DEBUG_MODE = true; // Set to false for release builds
+    private static final int RESTART_DELAY_MS = 2000; // 2 seconds delay before restart
     
     private static DebugErrorTracker instance;
     private Context applicationContext;
     private File errorLogFile;
+    private File crashRestartFile;
     private SimpleDateFormat dateFormat;
     
     private DebugErrorTracker(Context context) {
@@ -49,11 +58,17 @@ public class DebugErrorTracker {
             File externalDir = applicationContext.getExternalFilesDir(null);
             if (externalDir != null) {
                 errorLogFile = new File(externalDir, ERROR_LOG_FILE);
+                crashRestartFile = new File(externalDir, CRASH_RESTART_FILE);
                 
-                // Create file if it doesn't exist
+                // Create error log file if it doesn't exist
                 if (!errorLogFile.exists()) {
                     errorLogFile.createNewFile();
                     logToFile("=== Cove Manager Error Tracking Started ===");
+                }
+                
+                // Create crash restart file if it doesn't exist
+                if (!crashRestartFile.exists()) {
+                    crashRestartFile.createNewFile();
                 }
             }
         } catch (IOException e) {
@@ -70,15 +85,173 @@ public class DebugErrorTracker {
         Thread.setDefaultUncaughtExceptionHandler(new Thread.UncaughtExceptionHandler() {
             @Override
             public void uncaughtException(Thread thread, Throwable throwable) {
-                // Log the uncaught exception
-                logError("UNCAUGHT_EXCEPTION", "Thread: " + thread.getName(), throwable);
-                
-                // Call the default handler to maintain normal crash behavior
-                if (defaultHandler != null) {
-                    defaultHandler.uncaughtException(thread, throwable);
+                try {
+                    // Log the uncaught exception
+                    String crashDetails = logCrashAndPrepareRestart(thread, throwable);
+                    
+                    // Schedule app restart after 2 seconds
+                    scheduleAppRestart(crashDetails);
+                    
+                } catch (Exception e) {
+                    Log.e(TAG, "Error in crash handler", e);
+                } finally {
+                    // Call the default handler to maintain normal crash behavior
+                    if (defaultHandler != null) {
+                        defaultHandler.uncaughtException(thread, throwable);
+                    }
                 }
             }
         });
+    }
+    
+    /**
+     * Log crash details and prepare for restart
+     */
+    private String logCrashAndPrepareRestart(Thread thread, Throwable throwable) {
+        String timestamp = dateFormat.format(new Date());
+        String crashDetails = String.format(
+            "=== CRASH OCCURRED ===\n" +
+            "Time: %s\n" +
+            "Thread: %s\n" +
+            "Exception: %s\n" +
+            "Message: %s\n" +
+            "Stack Trace:\n%s\n" +
+            "=== END CRASH DETAILS ===\n",
+            timestamp,
+            thread.getName(),
+            throwable.getClass().getSimpleName(),
+            throwable.getMessage(),
+            getStackTrace(throwable)
+        );
+        
+        // Log to main error file
+        logError("UNCAUGHT_EXCEPTION", "Thread: " + thread.getName(), throwable);
+        
+        // Save crash details for restart
+        saveCrashRestartData(crashDetails);
+        
+        return crashDetails;
+    }
+    
+    /**
+     * Save crash data for display after restart
+     */
+    private void saveCrashRestartData(String crashDetails) {
+        try {
+            if (crashRestartFile != null) {
+                FileWriter writer = new FileWriter(crashRestartFile, false);
+                writer.write("CRASH_RESTART_FLAG=true\n");
+                writer.write("CRASH_TIME=" + System.currentTimeMillis() + "\n");
+                writer.write("CRASH_DETAILS_START\n");
+                writer.write(crashDetails);
+                writer.write("CRASH_DETAILS_END\n");
+                writer.close();
+                
+                Log.i(TAG, "Crash restart data saved");
+            }
+        } catch (IOException e) {
+            Log.e(TAG, "Failed to save crash restart data", e);
+        }
+    }
+    
+    /**
+     * Schedule app restart using AlarmManager
+     */
+    private void scheduleAppRestart(String crashDetails) {
+        try {
+            AlarmManager alarmManager = (AlarmManager) applicationContext.getSystemService(Context.ALARM_SERVICE);
+            
+            // Create intent to restart the app
+            Intent restartIntent = new Intent(applicationContext, CrashRestartReceiver.class);
+            restartIntent.putExtra("crash_details", crashDetails);
+            
+            PendingIntent pendingIntent = PendingIntent.getBroadcast(
+                applicationContext,
+                0,
+                restartIntent,
+                PendingIntent.FLAG_UPDATE_CURRENT | PendingIntent.FLAG_IMMUTABLE
+            );
+            
+            // Schedule restart after 2 seconds
+            long triggerTime = SystemClock.elapsedRealtime() + RESTART_DELAY_MS;
+            alarmManager.set(AlarmManager.ELAPSED_REALTIME, triggerTime, pendingIntent);
+            
+            Log.i(TAG, "App restart scheduled in " + RESTART_DELAY_MS + "ms");
+            
+        } catch (Exception e) {
+            Log.e(TAG, "Failed to schedule app restart", e);
+        }
+    }
+    
+    /**
+     * Check if app was restarted due to crash
+     */
+    public boolean wasRestartedFromCrash() {
+        if (crashRestartFile == null || !crashRestartFile.exists()) {
+            return false;
+        }
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(crashRestartFile))) {
+            String line = reader.readLine();
+            if (line != null && line.equals("CRASH_RESTART_FLAG=true")) {
+                // Check if crash was recent (within last 30 seconds)
+                String timeLine = reader.readLine();
+                if (timeLine != null && timeLine.startsWith("CRASH_TIME=")) {
+                    long crashTime = Long.parseLong(timeLine.substring("CRASH_TIME=".length()));
+                    long currentTime = System.currentTimeMillis();
+                    return (currentTime - crashTime) < 30000; // 30 seconds
+                }
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking crash restart flag", e);
+        }
+        
+        return false;
+    }
+    
+    /**
+     * Get crash details from restart file
+     */
+    public String getCrashDetailsFromRestart() {
+        if (crashRestartFile == null || !crashRestartFile.exists()) {
+            return null;
+        }
+        
+        try (BufferedReader reader = new BufferedReader(new FileReader(crashRestartFile))) {
+            StringBuilder details = new StringBuilder();
+            String line;
+            boolean inDetails = false;
+            
+            while ((line = reader.readLine()) != null) {
+                if (line.equals("CRASH_DETAILS_START")) {
+                    inDetails = true;
+                    continue;
+                } else if (line.equals("CRASH_DETAILS_END")) {
+                    break;
+                } else if (inDetails) {
+                    details.append(line).append("\n");
+                }
+            }
+            
+            return details.toString();
+        } catch (Exception e) {
+            Log.e(TAG, "Error reading crash details", e);
+            return null;
+        }
+    }
+    
+    /**
+     * Clear crash restart flag
+     */
+    public void clearCrashRestartFlag() {
+        try {
+            if (crashRestartFile != null && crashRestartFile.exists()) {
+                crashRestartFile.delete();
+                Log.i(TAG, "Crash restart flag cleared");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error clearing crash restart flag", e);
+        }
     }
     
     /**

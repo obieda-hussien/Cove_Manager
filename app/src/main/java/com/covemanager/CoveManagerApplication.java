@@ -20,6 +20,9 @@ public class CoveManagerApplication extends Application {
         // Initialize the debug error tracker
         initializeErrorTracking();
         
+        // Check if app was restarted due to crash
+        checkCrashRestart();
+        
         // Log application startup
         if (errorTracker != null) {
             errorTracker.logInfo(TAG, "Cove Manager Application started successfully");
@@ -35,6 +38,22 @@ public class CoveManagerApplication extends Application {
             Log.i(TAG, "Error tracking initialized successfully");
         } catch (Exception e) {
             Log.e(TAG, "Failed to initialize error tracking", e);
+        }
+    }
+    
+    /**
+     * Check if app was restarted due to crash and handle accordingly
+     */
+    private void checkCrashRestart() {
+        try {
+            if (errorTracker != null && errorTracker.wasRestartedFromCrash()) {
+                Log.i(TAG, "App was restarted due to crash - will launch debug viewer");
+                // The actual navigation will be handled in SplashActivity
+                // We just log this for tracking purposes
+                errorTracker.logInfo(TAG, "App restarted after crash - preparing to show debug info");
+            }
+        } catch (Exception e) {
+            Log.e(TAG, "Error checking crash restart status", e);
         }
     }
     

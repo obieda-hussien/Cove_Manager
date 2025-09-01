@@ -22,11 +22,13 @@ import java.io.IOException;
  */
 public class DebugErrorViewerActivity extends AppCompatActivity {
     private TextView textViewLogs;
+    private TextView textViewCrashDetails;
     private ScrollView scrollView;
     private Handler handler;
     private Runnable refreshRunnable;
     private File logFile;
     private long lastFileSize = 0;
+    private boolean showCrashDetails = false;
     
     public static void start(Context context) {
         Intent intent = new Intent(context, DebugErrorViewerActivity.class);
@@ -38,8 +40,17 @@ public class DebugErrorViewerActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
         
         try {
+            // Check if we should show crash details
+            showCrashDetails = getIntent().getBooleanExtra("show_crash_details", false);
+            
             setupUI();
             initializeLogFile();
+            
+            // Show crash details if this is a crash restart
+            if (showCrashDetails) {
+                displayCrashDetails();
+            }
+            
             startAutoRefresh();
             
             ErrorLogger.logInfo(this, "DebugErrorViewer", "Debug error viewer started");
@@ -50,11 +61,24 @@ public class DebugErrorViewerActivity extends AppCompatActivity {
     }
     
     private void setupUI() {
-        // Create UI programmatically since we don't have a layout file
+        // Create main vertical layout
+        android.widget.LinearLayout mainLayout = new android.widget.LinearLayout(this);
+        mainLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        
+        // Create crash details section (initially hidden)
+        textViewCrashDetails = new TextView(this);
+        textViewCrashDetails.setTextSize(14);
+        textViewCrashDetails.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
+        textViewCrashDetails.setPadding(16, 16, 16, 16);
+        textViewCrashDetails.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
+        textViewCrashDetails.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
+        textViewCrashDetails.setVisibility(android.view.View.GONE);
+        
+        // Create scroll view for logs
         scrollView = new ScrollView(this);
         textViewLogs = new TextView(this);
         
-        // Style the TextView
+        // Style the logs TextView
         textViewLogs.setTextSize(12);
         textViewLogs.setTypeface(android.graphics.Typeface.MONOSPACE);
         textViewLogs.setPadding(16, 16, 16, 16);
@@ -62,12 +86,43 @@ public class DebugErrorViewerActivity extends AppCompatActivity {
         textViewLogs.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
         
         scrollView.addView(textViewLogs);
-        setContentView(scrollView);
+        
+        // Add views to main layout
+        mainLayout.addView(textViewCrashDetails);
+        mainLayout.addView(scrollView);
+        
+        setContentView(mainLayout);
         
         // Set up toolbar
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Debug Error Logs");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        }
+    }
+    
+    /**
+     * Display crash details prominently at the top
+     */
+    private void displayCrashDetails() {
+        try {
+            String crashDetails = getIntent().getStringExtra("crash_details");
+            if (crashDetails == null) {
+                // Try to get from error tracker
+                DebugErrorTracker tracker = DebugErrorTracker.getInstance(this);
+                crashDetails = tracker.getCrashDetailsFromRestart();
+            }
+            
+            if (crashDetails != null && !crashDetails.trim().isEmpty()) {
+                textViewCrashDetails.setText("🔴 التطبيق تم إعادة تشغيله بعد حدوث خطأ:\n\n" + crashDetails);
+                textViewCrashDetails.setVisibility(android.view.View.VISIBLE);
+                
+                // Update toolbar title to indicate crash
+                if (getSupportActionBar() != null) {
+                    getSupportActionBar().setTitle("🔴 تفاصيل الخطأ - Debug Logs");
+                }
+            }
+        } catch (Exception e) {
+            ErrorLogger.logError(this, "DebugErrorViewer", "Error displaying crash details", e);
         }
     }
     
