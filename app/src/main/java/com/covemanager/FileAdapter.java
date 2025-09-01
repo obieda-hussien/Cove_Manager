@@ -1,5 +1,6 @@
 package com.covemanager;
 
+import android.graphics.Color;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -7,6 +8,7 @@ import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 import com.covemanager.databinding.ItemFileBinding;
 import java.io.File;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
@@ -14,24 +16,30 @@ import android.os.Handler;
 import android.os.Looper;
 
 /**
- * Adapter for displaying files and folders with integrated caching for folder sizes
+ * Modern FileAdapter with selection mode, ActionMode, and advanced file operations
  */
 public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder> {
     private List<FileItem> fileItems;
+    private List<File> selectedItems;
     private OnFileClickListener listener;
     private ExecutorService executorService;
     private Handler mainHandler;
     private FolderSizeCache cache;
+    private boolean isSelectionMode = false;
 
     public interface OnFileClickListener {
         void onFileClick(FileItem fileItem);
         void onFileLongClick(FileItem fileItem);
+        void onSelectionModeStarted();
+        void onSelectionModeEnded();
+        void onSelectionChanged(int selectedCount);
     }
 
     public FileAdapter(List<FileItem> fileItems, OnFileClickListener listener) {
         this.fileItems = fileItems;
+        this.selectedItems = new ArrayList<>();
         this.listener = listener;
-        this.executorService = Executors.newFixedThreadPool(2); // Limit concurrent calculations
+        this.executorService = Executors.newFixedThreadPool(2);
         this.mainHandler = new Handler(Looper.getMainLooper());
         this.cache = FolderSizeCache.getInstance();
     }
@@ -53,6 +61,92 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
     @Override
     public int getItemCount() {
         return fileItems.size();
+    }
+
+    // Selection Mode Methods
+    public void startSelectionMode() {
+        if (!isSelectionMode) {
+            isSelectionMode = true;
+            selectedItems.clear();
+            notifyDataSetChanged();
+            if (listener != null) {
+                listener.onSelectionModeStarted();
+            }
+        }
+    }
+
+    public void endSelectionMode() {
+        if (isSelectionMode) {
+            isSelectionMode = false;
+            selectedItems.clear();
+            notifyDataSetChanged();
+            if (listener != null) {
+                listener.onSelectionModeEnded();
+            }
+        }
+    }
+
+    public void toggleSelection(int position) {
+        if (position >= 0 && position < fileItems.size()) {
+            FileItem fileItem = fileItems.get(position);
+            File file = fileItem.getFile();
+            
+            if (selectedItems.contains(file)) {
+                selectedItems.remove(file);
+            } else {
+                selectedItems.add(file);
+            }
+            
+            notifyItemChanged(position);
+            
+            if (listener != null) {
+                listener.onSelectionChanged(selectedItems.size());
+            }
+            
+            // End selection mode if no items selected
+            if (selectedItems.isEmpty()) {
+                endSelectionMode();
+            }
+        }
+    }
+
+    public void selectAll() {
+        selectedItems.clear();
+        for (FileItem item : fileItems) {
+            if (!item.getName().equals("..")) { // Don't select parent directory
+                selectedItems.add(item.getFile());
+            }
+        }
+        notifyDataSetChanged();
+        
+        if (listener != null) {
+            listener.onSelectionChanged(selectedItems.size());
+        }
+    }
+
+    public void clearSelection() {
+        selectedItems.clear();
+        notifyDataSetChanged();
+        
+        if (listener != null) {
+            listener.onSelectionChanged(0);
+        }
+    }
+
+    public List<File> getSelectedItems() {
+        return new ArrayList<>(selectedItems);
+    }
+
+    public int getSelectedItemsCount() {
+        return selectedItems.size();
+    }
+
+    public boolean isSelectionMode() {
+        return isSelectionMode;
+    }
+
+    private boolean isSelected(File file) {
+        return selectedItems.contains(file);
     }
 
     /**
@@ -104,6 +198,26 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
                 binding.ivFileIcon.setImageResource(R.drawable.ic_category_documents);
             }
 
+            // Handle selection mode UI
+            if (isSelectionMode) {
+                binding.checkboxSelect.setVisibility(View.VISIBLE);
+                boolean selected = isSelected(fileItem.getFile());
+                binding.checkboxSelect.setChecked(selected);
+                
+                // Change background color for selected items
+                if (selected) {
+                    binding.constraintLayoutRoot.setBackgroundColor(
+                        binding.getRoot().getContext().getResources().getColor(android.R.color.holo_blue_light, null));
+                } else {
+                    binding.constraintLayoutRoot.setBackground(
+                        binding.getRoot().getContext().getDrawable(android.R.attr.selectableItemBackground));
+                }
+            } else {
+                binding.checkboxSelect.setVisibility(View.GONE);
+                binding.constraintLayoutRoot.setBackground(
+                    binding.getRoot().getContext().getDrawable(android.R.attr.selectableItemBackground));
+            }
+
             // Handle folder size with caching
             if (fileItem.isDirectory()) {
                 // Check cache first
@@ -152,16 +266,31 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
 
             // Set click listeners
             binding.getRoot().setOnClickListener(v -> {
-                if (listener != null) {
-                    listener.onFileClick(fileItem);
+                if (isSelectionMode) {
+                    // In selection mode, clicking toggles selection
+                    toggleSelection(getAdapterPosition());
+                } else {
+                    // Normal mode, handle file click
+                    if (listener != null) {
+                        listener.onFileClick(fileItem);
+                    }
                 }
             });
 
             binding.getRoot().setOnLongClickListener(v -> {
-                if (listener != null) {
-                    listener.onFileLongClick(fileItem);
+                if (!isSelectionMode) {
+                    // Start selection mode on long press
+                    startSelectionMode();
+                    toggleSelection(getAdapterPosition());
                 }
                 return true;
+            });
+
+            // Handle checkbox clicks
+            binding.checkboxSelect.setOnClickListener(v -> {
+                if (isSelectionMode) {
+                    toggleSelection(getAdapterPosition());
+                }
             });
         }
     }

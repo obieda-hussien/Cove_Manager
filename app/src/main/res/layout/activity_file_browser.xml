@@ -24,35 +24,114 @@
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Current Path Display -->
-    <com.google.android.material.card.MaterialCardView
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_margin="2dp"
-        app:cardBackgroundColor="@color/colorCardBackground"
-        app:cardCornerRadius="8dp"
-        app:cardElevation="1dp"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior">
-
-        <TextView
-            android:id="@+id/tv_current_path"
-            android:layout_width="match_parent"
-            android:layout_height="wrap_content"
-            android:padding="16dp"
-            android:text="/storage/emulated/0/"
-            android:textColor="@color/textColorPrimary"
-            android:textSize="14sp"
-            android:fontFamily="monospace" />
-
-    </com.google.android.material.card.MaterialCardView>
-
-    <!-- File List -->
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_files"
+    <!-- Main Content -->
+    <LinearLayout
         android:layout_width="match_parent"
         android:layout_height="match_parent"
-        android:layout_marginTop="72dp"
-        android:background="@color/colorBackground"
-        app:layout_behavior="@string/appbar_scrolling_view_behavior" />
+        android:orientation="vertical"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <!-- Current Path Display -->
+        <com.google.android.material.card.MaterialCardView
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="2dp"
+            app:cardBackgroundColor="@color/colorCardBackground"
+            app:cardCornerRadius="8dp"
+            app:cardElevation="1dp">
+
+            <TextView
+                android:id="@+id/tv_current_path"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:padding="16dp"
+                android:text="/storage/emulated/0/"
+                android:textColor="@color/textColorPrimary"
+                android:textSize="14sp"
+                android:fontFamily="monospace" />
+
+        </com.google.android.material.card.MaterialCardView>
+
+        <!-- File List -->
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/rv_files"
+            android:layout_width="match_parent"
+            android:layout_height="0dp"
+            android:layout_weight="1"
+            android:background="@color/colorBackground" />
+
+        <!-- Bottom Action Bar (hidden by default) -->
+        <LinearLayout
+            android:id="@+id/layout_action_bar"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:background="@color/colorCardBackground"
+            android:elevation="8dp"
+            android:orientation="horizontal"
+            android:padding="8dp"
+            android:visibility="gone">
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_delete"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="حذف"
+                android:textColor="@color/colorError" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_rename"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="إعادة تسمية" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_share"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="مشاركة" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_compress"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="ضغط" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_copy"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="نسخ إلى" />
+
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_move"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="نقل إلى" />
+
+        </LinearLayout>
+
+        <!-- Paste Button (hidden by default) -->
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/btn_paste_here"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_margin="16dp"
+            android:text="الصق هنا"
+            android:visibility="gone"
+            app:backgroundTint="@color/colorPrimary" />
+
+    </LinearLayout>
 
 </androidx.coordinatorlayout.widget.CoordinatorLayout>
