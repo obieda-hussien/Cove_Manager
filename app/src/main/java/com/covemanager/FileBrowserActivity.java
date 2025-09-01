@@ -42,6 +42,9 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
 
         // Set initial directory
         String initialPath = getIntent().getStringExtra("initial_path");
+        if (initialPath == null) {
+            initialPath = getIntent().getStringExtra("path");
+        }
         if (initialPath != null) {
             currentDirectory = new File(initialPath);
         } else {

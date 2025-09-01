@@ -3,6 +3,7 @@ package com.covemanager;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 import androidx.recyclerview.widget.GridLayoutManager;
 import android.content.Intent;
 import android.net.Uri;
@@ -14,6 +15,7 @@ import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Toast;
 import com.covemanager.databinding.ActivityMainBinding;
 import com.covemanager.databinding.DialogStoragePermissionBinding;
 import java.util.ArrayList;
@@ -40,6 +42,10 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.O
         // Set up categories RecyclerView
         setupCategoriesRecyclerView();
 
+        // Set up storage cards and tools navigation
+        setupStorageNavigation();
+        setupToolsNavigation();
+
         // Check storage permission
         checkStoragePermission();
     }
@@ -58,6 +64,65 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.O
         categoryAdapter = new CategoryAdapter(categories, this);
         binding.rvCategories.setLayoutManager(new GridLayoutManager(this, 3));
         binding.rvCategories.setAdapter(categoryAdapter);
+    }
+
+    private void setupStorageNavigation() {
+        // Find Internal Storage card by locating the MaterialCardView containing iv_internal_icon
+        View internalStorageCard = (View) findViewById(R.id.iv_internal_icon).getParent().getParent();
+        internalStorageCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Launch FileBrowserActivity with internal storage path
+                Intent intent = new Intent(MainActivity.this, FileBrowserActivity.class);
+                String internalStoragePath = Environment.getExternalStorageDirectory().getPath();
+                intent.putExtra("path", internalStoragePath);
+                startActivity(intent);
+            }
+        });
+
+        // Find SD Card storage card by locating the MaterialCardView containing iv_sd_icon
+        View sdStorageCard = (View) findViewById(R.id.iv_sd_icon).getParent().getParent();
+        sdStorageCard.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Check if SD card is mounted and available
+                File[] externalFilesDirs = ContextCompat.getExternalFilesDirs(MainActivity.this, null);
+                
+                if (externalFilesDirs.length > 1 && externalFilesDirs[1] != null) {
+                    // SD card found - get the SD card path
+                    String sdCardPath = externalFilesDirs[1].getAbsolutePath();
+                    // Navigate up to get the root of SD card
+                    File sdRoot = new File(sdCardPath);
+                    while (sdRoot.getParent() != null && !sdRoot.getName().equals("Android")) {
+                        sdRoot = sdRoot.getParentFile();
+                    }
+                    if (sdRoot.getParent() != null) {
+                        sdRoot = sdRoot.getParentFile();
+                    }
+                    
+                    // Launch FileBrowserActivity with SD card path
+                    Intent intent = new Intent(MainActivity.this, FileBrowserActivity.class);
+                    intent.putExtra("path", sdRoot.getAbsolutePath());
+                    startActivity(intent);
+                } else {
+                    // No SD card found
+                    Toast.makeText(MainActivity.this, "SD Card not found.", Toast.LENGTH_SHORT).show();
+                }
+            }
+        });
+    }
+
+    private void setupToolsNavigation() {
+        // Find File Cleaner tool and set click listener
+        View fileCleanerTool = findViewById(R.id.tool_file_cleaner);
+        fileCleanerTool.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                // Launch FileCleanerActivity
+                Intent intent = new Intent(MainActivity.this, FileCleanerActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private void checkStoragePermission() {
