@@ -1,6 +1,9 @@
 package com.covemanager;
 
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.appcompat.widget.Toolbar;
+import com.google.android.material.card.MaterialCardView;
+import com.google.android.material.floatingactionbutton.FloatingActionButton;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
@@ -8,6 +11,7 @@ import android.os.Handler;
 import android.os.Looper;
 import android.view.Menu;
 import android.view.MenuItem;
+import android.view.View;
 import android.widget.ScrollView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -18,17 +22,22 @@ import java.io.IOException;
 
 /**
  * Debug Error Viewer Activity
- * Shows real-time error logs from the DebugErrorTracker
+ * Shows real-time error logs from the DebugErrorTracker with modern Material Design UI
  */
 public class DebugErrorViewerActivity extends AppCompatActivity {
     private TextView textViewLogs;
     private TextView textViewCrashDetails;
-    private ScrollView scrollView;
+    private TextView textViewLogCount;
+    private TextView textViewRefreshIndicator;
+    private MaterialCardView crashDetailsCard;
+    private ScrollView scrollViewLogs;
+    private FloatingActionButton fabActions;
     private Handler handler;
     private Runnable refreshRunnable;
     private File logFile;
     private long lastFileSize = 0;
     private boolean showCrashDetails = false;
+    private int logEntryCount = 0;
     
     public static void start(Context context) {
         Intent intent = new Intent(context, DebugErrorViewerActivity.class);
@@ -38,6 +47,7 @@ public class DebugErrorViewerActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_debug_error_viewer);
         
         try {
             // Check if we should show crash details
@@ -61,43 +71,34 @@ public class DebugErrorViewerActivity extends AppCompatActivity {
     }
     
     private void setupUI() {
-        // Create main vertical layout
-        android.widget.LinearLayout mainLayout = new android.widget.LinearLayout(this);
-        mainLayout.setOrientation(android.widget.LinearLayout.VERTICAL);
+        // Initialize views from layout
+        Toolbar toolbar = findViewById(R.id.toolbar);
+        setSupportActionBar(toolbar);
         
-        // Create crash details section (initially hidden)
-        textViewCrashDetails = new TextView(this);
-        textViewCrashDetails.setTextSize(14);
-        textViewCrashDetails.setTypeface(android.graphics.Typeface.DEFAULT_BOLD);
-        textViewCrashDetails.setPadding(16, 16, 16, 16);
-        textViewCrashDetails.setTextColor(getResources().getColor(android.R.color.holo_red_dark));
-        textViewCrashDetails.setBackgroundColor(getResources().getColor(android.R.color.holo_red_light));
-        textViewCrashDetails.setVisibility(android.view.View.GONE);
-        
-        // Create scroll view for logs
-        scrollView = new ScrollView(this);
-        textViewLogs = new TextView(this);
-        
-        // Style the logs TextView
-        textViewLogs.setTextSize(12);
-        textViewLogs.setTypeface(android.graphics.Typeface.MONOSPACE);
-        textViewLogs.setPadding(16, 16, 16, 16);
-        textViewLogs.setTextColor(getResources().getColor(android.R.color.primary_text_light));
-        textViewLogs.setBackgroundColor(getResources().getColor(android.R.color.background_dark));
-        
-        scrollView.addView(textViewLogs);
-        
-        // Add views to main layout
-        mainLayout.addView(textViewCrashDetails);
-        mainLayout.addView(scrollView);
-        
-        setContentView(mainLayout);
+        textViewLogs = findViewById(R.id.tv_logs);
+        textViewCrashDetails = findViewById(R.id.tv_crash_details);
+        textViewLogCount = findViewById(R.id.tv_log_count);
+        textViewRefreshIndicator = findViewById(R.id.tv_refresh_indicator);
+        crashDetailsCard = findViewById(R.id.crash_details_card);
+        scrollViewLogs = findViewById(R.id.scroll_view_logs);
+        fabActions = findViewById(R.id.fab_actions);
         
         // Set up toolbar
         if (getSupportActionBar() != null) {
             getSupportActionBar().setTitle("Debug Error Logs");
             getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         }
+        
+        // Set up FAB click listener for quick actions
+        fabActions.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                showQuickActionsMenu();
+            }
+        });
+        
+        // Update initial log count
+        updateLogCount();
     }
     
     /**
@@ -114,7 +115,7 @@ public class DebugErrorViewerActivity extends AppCompatActivity {
             
             if (crashDetails != null && !crashDetails.trim().isEmpty()) {
                 textViewCrashDetails.setText("🔴 التطبيق تم إعادة تشغيله بعد حدوث خطأ:\n\n" + crashDetails);
-                textViewCrashDetails.setVisibility(android.view.View.VISIBLE);
+                crashDetailsCard.setVisibility(View.VISIBLE);
                 
                 // Update toolbar title to indicate crash
                 if (getSupportActionBar() != null) {
@@ -144,6 +145,8 @@ public class DebugErrorViewerActivity extends AppCompatActivity {
             @Override
             public void run() {
                 refreshLogContent();
+                // Animate refresh indicator
+                animateRefreshIndicator();
                 handler.postDelayed(this, 2000); // Refresh every 2 seconds
             }
         };
@@ -159,30 +162,42 @@ public class DebugErrorViewerActivity extends AppCompatActivity {
     private void loadLogContent() {
         try {
             if (logFile == null || !logFile.exists()) {
-                textViewLogs.setText("Log file not available");
+                textViewLogs.setText("سجل الأخطاء غير متوفر\nLog file not available");
+                updateLogCount();
                 return;
             }
             
             StringBuilder content = new StringBuilder();
+            logEntryCount = 0;
             try (BufferedReader reader = new BufferedReader(new FileReader(logFile))) {
                 String line;
                 while ((line = reader.readLine()) != null) {
                     content.append(line).append("\n");
+                    // Count non-empty lines as log entries
+                    if (!line.trim().isEmpty()) {
+                        logEntryCount++;
+                    }
                 }
             }
             
-            textViewLogs.setText(content.toString());
+            if (content.length() == 0) {
+                textViewLogs.setText("لا توجد أخطاء مسجلة\nNo errors logged yet");
+            } else {
+                textViewLogs.setText(content.toString());
+            }
+            
+            updateLogCount();
             
             // Auto-scroll to bottom
-            scrollView.post(new Runnable() {
+            scrollViewLogs.post(new Runnable() {
                 @Override
                 public void run() {
-                    scrollView.fullScroll(ScrollView.FOCUS_DOWN);
+                    scrollViewLogs.fullScroll(ScrollView.FOCUS_DOWN);
                 }
             });
             
         } catch (IOException e) {
-            textViewLogs.setText("Error reading log file: " + e.getMessage());
+            textViewLogs.setText("خطأ في قراءة ملف السجل\nError reading log file: " + e.getMessage());
             ErrorLogger.logError(this, "DebugErrorViewer", "Error reading log file", e);
         }
     }
@@ -273,6 +288,88 @@ public class DebugErrorViewerActivity extends AppCompatActivity {
         } catch (Exception e) {
             Toast.makeText(this, "Failed to share logs", Toast.LENGTH_SHORT).show();
             ErrorLogger.logError(this, "DebugErrorViewer", "Error sharing logs", e);
+        }
+    }
+    
+    /**
+     * Update the log entry count display
+     */
+    private void updateLogCount() {
+        if (textViewLogCount != null) {
+            String countText = logEntryCount + " entries";
+            if (logEntryCount == 0) {
+                countText = "No logs";
+            } else if (logEntryCount == 1) {
+                countText = "1 entry";
+            }
+            textViewLogCount.setText(countText);
+        }
+    }
+    
+    /**
+     * Animate the refresh indicator to show activity
+     */
+    private void animateRefreshIndicator() {
+        if (textViewRefreshIndicator != null) {
+            textViewRefreshIndicator.animate()
+                .rotation(textViewRefreshIndicator.getRotation() + 360f)
+                .setDuration(500)
+                .start();
+        }
+    }
+    
+    /**
+     * Show quick actions menu via FAB
+     */
+    private void showQuickActionsMenu() {
+        androidx.appcompat.app.AlertDialog.Builder builder = new androidx.appcompat.app.AlertDialog.Builder(this);
+        builder.setTitle("إجراءات سريعة - Quick Actions");
+        
+        String[] options = {
+            "🔄 تحديث - Refresh",
+            "🗑️ مسح السجلات - Clear Logs", 
+            "📤 مشاركة - Share Logs",
+            "📋 نسخ الكل - Copy All"
+        };
+        
+        builder.setItems(options, (dialog, which) -> {
+            switch (which) {
+                case 0: // Refresh
+                    loadLogContent();
+                    Toast.makeText(this, "تم التحديث - Refreshed", Toast.LENGTH_SHORT).show();
+                    break;
+                case 1: // Clear
+                    clearLogs();
+                    break;
+                case 2: // Share
+                    shareLogs();
+                    break;
+                case 3: // Copy All
+                    copyAllLogs();
+                    break;
+            }
+        });
+        
+        builder.setNegativeButton("إلغاء - Cancel", null);
+        builder.show();
+    }
+    
+    /**
+     * Copy all logs to clipboard
+     */
+    private void copyAllLogs() {
+        try {
+            android.content.ClipboardManager clipboard = (android.content.ClipboardManager) 
+                getSystemService(Context.CLIPBOARD_SERVICE);
+            android.content.ClipData clip = android.content.ClipData.newPlainText(
+                "Cove Manager Debug Logs", 
+                textViewLogs.getText().toString()
+            );
+            clipboard.setPrimaryClip(clip);
+            Toast.makeText(this, "تم نسخ السجلات - Logs copied to clipboard", Toast.LENGTH_SHORT).show();
+        } catch (Exception e) {
+            Toast.makeText(this, "فشل النسخ - Failed to copy", Toast.LENGTH_SHORT).show();
+            ErrorLogger.logError(this, "DebugErrorViewer", "Error copying logs", e);
         }
     }
     

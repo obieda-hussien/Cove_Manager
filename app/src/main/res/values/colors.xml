@@ -10,6 +10,13 @@
     <color name="colorIconTint">#8A96A8</color>
     <color name="colorError">#E53E3E</color>
     
+    <!-- Debug colors for better contrast -->
+    <color name="debugBackground">#F8F9FA</color>
+    <color name="debugTextPrimary">#2D3748</color>
+    <color name="debugTextSecondary">#4A5568</color>
+    <color name="debugCodeBackground">#F7FAFC</color>
+    <color name="debugBorder">#E2E8F0</color>
+    
     <!-- Category colors for file types - Refined pastel shades -->
     <color name="categoryImages">#77D8A5</color> 
     <color name="categoryVideos">#62B6FC</color> 
