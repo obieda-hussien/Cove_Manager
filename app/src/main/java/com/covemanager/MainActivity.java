@@ -18,8 +18,9 @@ import com.covemanager.databinding.ActivityMainBinding;
 import com.covemanager.databinding.DialogStoragePermissionBinding;
 import java.util.ArrayList;
 import java.util.List;
+import java.io.File;
 
-public class MainActivity extends AppCompatActivity {
+public class MainActivity extends AppCompatActivity implements CategoryAdapter.OnCategoryClickListener {
     private ActivityMainBinding binding;
     private CategoryAdapter categoryAdapter;
 
@@ -54,7 +55,7 @@ public class MainActivity extends AppCompatActivity {
         categories.add(new Category("APKs", R.drawable.ic_category_apks, R.color.categoryApks));
 
         // Set up RecyclerView
-        categoryAdapter = new CategoryAdapter(categories);
+        categoryAdapter = new CategoryAdapter(categories, this);
         binding.rvCategories.setLayoutManager(new GridLayoutManager(this, 3));
         binding.rvCategories.setAdapter(categoryAdapter);
     }
@@ -119,6 +120,45 @@ public class MainActivity extends AppCompatActivity {
             return true;
         }
         return super.onOptionsItemSelected(item);
+    }
+    
+    @Override
+    public void onCategoryClick(Category category) {
+        // Launch FileBrowserActivity with appropriate path based on category
+        Intent intent = new Intent(this, FileBrowserActivity.class);
+        
+        // Determine initial path based on category
+        String initialPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        switch (category.getName()) {
+            case "Images":
+                initialPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
+                break;
+            case "Videos":
+                initialPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getAbsolutePath();
+                break;
+            case "Audio":
+                initialPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
+                break;
+            case "Documents":
+                initialPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
+                break;
+            case "Downloads":
+                initialPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+                break;
+            case "APKs":
+                // For APKs, default to Downloads folder
+                initialPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath();
+                break;
+        }
+        
+        // Make sure the directory exists, fallback to root if not
+        File targetDir = new File(initialPath);
+        if (!targetDir.exists() || !targetDir.isDirectory()) {
+            initialPath = Environment.getExternalStorageDirectory().getAbsolutePath();
+        }
+        
+        intent.putExtra("initial_path", initialPath);
+        startActivity(intent);
     }
     
     @Override

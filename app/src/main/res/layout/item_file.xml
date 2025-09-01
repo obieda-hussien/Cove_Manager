@@ -1,0 +1,86 @@
+<?xml version="1.0" encoding="utf-8"?>
+<com.google.android.material.card.MaterialCardView 
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="2dp"
+    app:cardBackgroundColor="@color/colorCardBackground"
+    app:cardCornerRadius="8dp"
+    app:cardElevation="1dp">
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:background="?attr/selectableItemBackground"
+        android:clickable="true"
+        android:focusable="true"
+        android:padding="12dp">
+
+        <!-- File Icon -->
+        <ImageView
+            android:id="@+id/iv_file_icon"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:src="@drawable/ic_category_documents"
+            app:tint="@color/colorPrimary"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintStart_toStartOf="parent" />
+
+        <!-- File Name -->
+        <TextView
+            android:id="@+id/tv_file_name"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:text="Document.pdf"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="16sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintTop_toTopOf="@+id/iv_file_icon"
+            app:layout_constraintStart_toEndOf="@+id/iv_file_icon"
+            app:layout_constraintEnd_toStartOf="@+id/tv_file_size" />
+
+        <!-- File Details -->
+        <TextView
+            android:id="@+id/tv_file_details"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_marginStart="12dp"
+            android:layout_marginTop="4dp"
+            android:text="Modified: Dec 12, 2023"
+            android:textColor="@color/textColorSecondary"
+            android:textSize="12sp"
+            android:maxLines="1"
+            android:ellipsize="end"
+            app:layout_constraintTop_toBottomOf="@+id/tv_file_name"
+            app:layout_constraintStart_toEndOf="@+id/iv_file_icon"
+            app:layout_constraintEnd_toStartOf="@+id/tv_file_size" />
+
+        <!-- File Size -->
+        <TextView
+            android:id="@+id/tv_file_size"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="1.2 MB"
+            android:textColor="@color/textColorSecondary"
+            android:textSize="14sp"
+            android:textStyle="bold"
+            app:layout_constraintTop_toTopOf="@+id/iv_file_icon"
+            app:layout_constraintBottom_toBottomOf="@+id/iv_file_icon"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+        <!-- Progress Bar (for calculating folder sizes) -->
+        <ProgressBar
+            android:id="@+id/pb_calculating"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:visibility="gone"
+            app:layout_constraintTop_toTopOf="@+id/tv_file_size"
+            app:layout_constraintBottom_toBottomOf="@+id/tv_file_size"
+            app:layout_constraintEnd_toEndOf="parent" />
+
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+</com.google.android.material.card.MaterialCardView>

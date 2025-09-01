@@ -13,22 +13,45 @@
         android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar">
 
         <com.google.android.material.appbar.MaterialToolbar
-            android:id="@+id/toolbar_settings"
+            android:id="@+id/toolbar_file_browser"
             android:layout_width="match_parent"
             android:layout_height="?attr/actionBarSize"
             android:background="@color/colorPrimary"
-            app:title="Settings"
+            app:title="File Browser"
             app:titleTextColor="@android:color/white"
             app:theme="@style/ThemeOverlay.MaterialComponents.Dark.ActionBar"
             app:navigationIcon="@drawable/ic_arrow_back" />
 
     </com.google.android.material.appbar.AppBarLayout>
 
-    <!-- Settings List -->
+    <!-- Current Path Display -->
+    <com.google.android.material.card.MaterialCardView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="2dp"
+        app:cardBackgroundColor="@color/colorCardBackground"
+        app:cardCornerRadius="8dp"
+        app:cardElevation="1dp"
+        app:layout_behavior="@string/appbar_scrolling_view_behavior">
+
+        <TextView
+            android:id="@+id/tv_current_path"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:padding="16dp"
+            android:text="/storage/emulated/0/"
+            android:textColor="@color/textColorPrimary"
+            android:textSize="14sp"
+            android:fontFamily="monospace" />
+
+    </com.google.android.material.card.MaterialCardView>
+
+    <!-- File List -->
     <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/rv_settings"
+        android:id="@+id/rv_files"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:layout_marginTop="72dp"
         android:background="@color/colorBackground"
         app:layout_behavior="@string/appbar_scrolling_view_behavior" />
 
