@@ -47,7 +47,11 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Inflate and get instance of binding
+        try {
+            // Log activity start
+            ErrorLogger.logInfo(this, "FileBrowserActivity", "Activity onCreate started");
+
+            // Inflate and get instance of binding
         binding = ActivityFileBrowserBinding.inflate(getLayoutInflater());
         setContentView(binding.getRoot());
 
@@ -83,6 +87,14 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
 
         // Load files
         loadFiles(currentDirectory);
+
+        // Log successful initialization
+        ErrorLogger.logInfo(this, "FileBrowserActivity", "Activity onCreate completed successfully");
+    } catch (Exception e) {
+        // Log any errors during initialization
+        ErrorLogger.logError(this, "FileBrowserActivity", "Error during onCreate", e);
+        finish(); // Close activity if critical error occurs
+    }
     }
 
     private void setupRecyclerView() {
@@ -369,8 +381,19 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         protected Boolean doInBackground(File... files) {
             boolean success = true;
             for (File file : files) {
-                if (!deleteRecursively(file)) {
+                try {
+                    if (!deleteRecursively(file)) {
+                        success = false;
+                        ErrorLogger.logError(FileBrowserActivity.this, "DeleteFilesTask", 
+                            "Failed to delete file: " + file.getAbsolutePath());
+                    } else {
+                        ErrorLogger.logInfo(FileBrowserActivity.this, "DeleteFilesTask", 
+                            "Successfully deleted: " + file.getAbsolutePath());
+                    }
+                } catch (Exception e) {
                     success = false;
+                    ErrorLogger.trackFileError(FileBrowserActivity.this, "delete", 
+                        file.getAbsolutePath(), e);
                 }
             }
             return success;
@@ -378,29 +401,41 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
 
         @Override
         protected void onPostExecute(Boolean success) {
-            cache.invalidatePath(currentDirectory.getAbsolutePath());
-            fileAdapter.endSelectionMode();
-            loadFiles(currentDirectory);
-            
-            if (success) {
-                Toast.makeText(FileBrowserActivity.this, "Files deleted successfully", Toast.LENGTH_SHORT).show();
-            } else {
-                Toast.makeText(FileBrowserActivity.this, "Some files could not be deleted", Toast.LENGTH_SHORT).show();
+            try {
+                cache.invalidatePath(currentDirectory.getAbsolutePath());
+                fileAdapter.endSelectionMode();
+                loadFiles(currentDirectory);
+                
+                if (success) {
+                    Toast.makeText(FileBrowserActivity.this, "Files deleted successfully", Toast.LENGTH_SHORT).show();
+                    ErrorLogger.logInfo(FileBrowserActivity.this, "DeleteFilesTask", "All files deleted successfully");
+                } else {
+                    Toast.makeText(FileBrowserActivity.this, "Some files could not be deleted", Toast.LENGTH_SHORT).show();
+                    ErrorLogger.logWarning(FileBrowserActivity.this, "DeleteFilesTask", "Some files could not be deleted");
+                }
+            } catch (Exception e) {
+                ErrorLogger.logError(FileBrowserActivity.this, "DeleteFilesTask", "Error in onPostExecute", e);
             }
         }
 
         private boolean deleteRecursively(File file) {
-            if (file.isDirectory()) {
-                File[] children = file.listFiles();
-                if (children != null) {
-                    for (File child : children) {
-                        if (!deleteRecursively(child)) {
-                            return false;
+            try {
+                if (file.isDirectory()) {
+                    File[] children = file.listFiles();
+                    if (children != null) {
+                        for (File child : children) {
+                            if (!deleteRecursively(child)) {
+                                return false;
+                            }
                         }
                     }
                 }
+                return file.delete();
+            } catch (Exception e) {
+                ErrorLogger.trackFileError(FileBrowserActivity.this, "deleteRecursively", 
+                    file.getAbsolutePath(), e);
+                return false;
             }
-            return file.delete();
         }
     }
 

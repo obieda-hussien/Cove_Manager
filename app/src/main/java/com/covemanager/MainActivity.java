@@ -30,24 +30,35 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.O
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        // Inflate and get instance of binding
-        binding = ActivityMainBinding.inflate(getLayoutInflater());
+        try {
+            // Log activity start
+            ErrorLogger.logInfo(this, "MainActivity", "Activity onCreate started");
 
-        // set content view to binding's root
-        setContentView(binding.getRoot());
+            // Inflate and get instance of binding
+            binding = ActivityMainBinding.inflate(getLayoutInflater());
 
-        // Set up toolbar
-        setSupportActionBar(binding.toolbar);
+            // set content view to binding's root
+            setContentView(binding.getRoot());
 
-        // Set up categories RecyclerView
-        setupCategoriesRecyclerView();
+            // Set up toolbar
+            setSupportActionBar(binding.toolbar);
 
-        // Set up storage cards and tools navigation
-        setupStorageNavigation();
-        setupToolsNavigation();
+            // Set up categories RecyclerView
+            setupCategoriesRecyclerView();
 
-        // Check storage permission
-        checkStoragePermission();
+            // Set up storage cards and tools navigation
+            setupStorageNavigation();
+            setupToolsNavigation();
+
+            // Check storage permission
+            checkStoragePermission();
+
+            // Log successful initialization
+            ErrorLogger.logInfo(this, "MainActivity", "Activity onCreate completed successfully");
+        } catch (Exception e) {
+            // Log any errors during initialization
+            ErrorLogger.logError(this, "MainActivity", "Error during onCreate", e);
+        }
     }
 
     private void setupCategoriesRecyclerView() {
@@ -174,15 +185,26 @@ public class MainActivity extends AppCompatActivity implements CategoryAdapter.O
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        int itemId = item.getItemId();
-        if (itemId == R.id.action_search) {
-            // Handle search action
-            return true;
-        } else if (itemId == R.id.action_settings) {
-            // Handle settings action - start SettingsActivity
-            Intent intent = new Intent(this, SettingsActivity.class);
-            startActivity(intent);
-            return true;
+        try {
+            int itemId = item.getItemId();
+            if (itemId == R.id.action_search) {
+                // Handle search action
+                ErrorLogger.logInfo(this, "MainActivity", "Search action selected");
+                return true;
+            } else if (itemId == R.id.action_settings) {
+                // Handle settings action - start SettingsActivity
+                Intent intent = new Intent(this, SettingsActivity.class);
+                startActivity(intent);
+                ErrorLogger.logInfo(this, "MainActivity", "Settings activity started");
+                return true;
+            } else if (itemId == R.id.action_debug_logs) {
+                // Handle debug logs - start DebugErrorViewerActivity
+                DebugErrorViewerActivity.start(this);
+                ErrorLogger.logInfo(this, "MainActivity", "Debug error viewer started");
+                return true;
+            }
+        } catch (Exception e) {
+            ErrorLogger.trackNavigationError(this, "MainActivity", "Unknown", e);
         }
         return super.onOptionsItemSelected(item);
     }
