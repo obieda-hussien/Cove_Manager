@@ -14,6 +14,8 @@ import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import android.os.Handler;
 import android.os.Looper;
+import android.util.TypedValue;
+import android.graphics.drawable.Drawable;
 
 /**
  * Modern FileAdapter with selection mode, ActionMode, and advanced file operations
@@ -209,13 +211,11 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
                     binding.constraintLayoutRoot.setBackgroundColor(
                         binding.getRoot().getContext().getResources().getColor(android.R.color.holo_blue_light, null));
                 } else {
-                    binding.constraintLayoutRoot.setBackground(
-                        binding.getRoot().getContext().getDrawable(android.R.attr.selectableItemBackground));
+                    setSelectableBackground(binding.constraintLayoutRoot);
                 }
             } else {
                 binding.checkboxSelect.setVisibility(View.GONE);
-                binding.constraintLayoutRoot.setBackground(
-                    binding.getRoot().getContext().getDrawable(android.R.attr.selectableItemBackground));
+                setSelectableBackground(binding.constraintLayoutRoot);
             }
 
             // Handle folder size with caching
@@ -292,6 +292,26 @@ public class FileAdapter extends RecyclerView.Adapter<FileAdapter.FileViewHolder
                     toggleSelection(getAdapterPosition());
                 }
             });
+        }
+    }
+
+    /**
+     * Helper method to properly set selectable background using theme attribute resolution
+     */
+    private void setSelectableBackground(View view) {
+        try {
+            TypedValue outValue = new TypedValue();
+            view.getContext().getTheme().resolveAttribute(android.R.attr.selectableItemBackground, outValue, true);
+            if (outValue.resourceId != 0) {
+                view.setBackgroundResource(outValue.resourceId);
+            } else {
+                // Fallback to transparent background if attribute cannot be resolved
+                view.setBackgroundColor(Color.TRANSPARENT);
+            }
+        } catch (Exception e) {
+            // Log the error and use transparent background as fallback
+            ErrorLogger.logError(view.getContext(), "FileAdapter", "Failed to set selectable background", e);
+            view.setBackgroundColor(Color.TRANSPARENT);
         }
     }
 }
