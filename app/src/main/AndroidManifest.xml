@@ -9,6 +9,7 @@
     <uses-permission android:name="android.permission.MANAGE_EXTERNAL_STORAGE" />
     
     <application 
+        android:name=".CoveManagerApplication"
         android:allowBackup="true" 
         android:icon="@mipmap/ic_launcher" 
         android:roundIcon="@mipmap/ic_launcher" 
@@ -42,8 +43,28 @@
             android:parentActivityName="MainActivity">
         </activity>
         
+        <activity 
+            android:name="FileBrowserActivity" 
+            android:exported="false"
+            android:parentActivityName="MainActivity">
+        </activity>
+        
+        <activity 
+            android:name="FileCleanerActivity" 
+            android:exported="false"
+            android:parentActivityName="MainActivity">
+        </activity>
+        
+        <activity 
+            android:name="DebugErrorViewerActivity" 
+            android:exported="false"
+            android:parentActivityName="MainActivity">
+        </activity>
+        
         <provider android:name="androidx.core.content.FileProvider" android:authorities="com.covemanager.provider" android:exported="false" android:grantUriPermissions="true">
             <meta-data android:name="android.support.FILE_PROVIDER_PATHS" android:resource="@xml/file_paths"/>
         </provider>
+        
+        <receiver android:name=".CrashRestartReceiver" android:exported="false" />
     </application>
 </manifest>

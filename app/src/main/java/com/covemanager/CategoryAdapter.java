@@ -11,9 +11,15 @@ import java.util.List;
 
 public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.CategoryViewHolder> {
     private List<Category> categories;
+    private OnCategoryClickListener listener;
 
-    public CategoryAdapter(List<Category> categories) {
+    public interface OnCategoryClickListener {
+        void onCategoryClick(Category category);
+    }
+
+    public CategoryAdapter(List<Category> categories, OnCategoryClickListener listener) {
         this.categories = categories;
+        this.listener = listener;
     }
 
     @NonNull
@@ -21,7 +27,7 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     public CategoryViewHolder onCreateViewHolder(@NonNull ViewGroup parent, int viewType) {
         ItemCategoryBinding binding = ItemCategoryBinding.inflate(
                 LayoutInflater.from(parent.getContext()), parent, false);
-        return new CategoryViewHolder(binding);
+        return new CategoryViewHolder(binding, listener);
     }
 
     @Override
@@ -37,10 +43,12 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
 
     static class CategoryViewHolder extends RecyclerView.ViewHolder {
         private ItemCategoryBinding binding;
+        private OnCategoryClickListener listener;
 
-        public CategoryViewHolder(ItemCategoryBinding binding) {
+        public CategoryViewHolder(ItemCategoryBinding binding, OnCategoryClickListener listener) {
             super(binding.getRoot());
             this.binding = binding;
+            this.listener = listener;
         }
 
         public void bind(Category category) {
@@ -50,6 +58,13 @@ public class CategoryAdapter extends RecyclerView.Adapter<CategoryAdapter.Catego
     // Set the background color on the background ShapeableImageView
     binding.ivCategoryBackground.setBackgroundColor(
             ContextCompat.getColor(binding.getRoot().getContext(), category.getColor()));
+    
+    // Set click listener
+    binding.getRoot().setOnClickListener(v -> {
+        if (listener != null) {
+            listener.onCategoryClick(category);
+        }
+    });
 }
 
     }

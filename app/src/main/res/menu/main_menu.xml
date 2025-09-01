@@ -13,5 +13,12 @@
         android:icon="@drawable/ic_settings"
         android:title="Settings"
         app:showAsAction="ifRoom" />
+    
+    <item
+        android:id="@+id/action_debug_logs"
+        android:icon="@android:drawable/ic_menu_info_details"
+        android:title="Debug Logs"
+        android:visible="true"
+        app:showAsAction="never" />
         
 </menu>
