@@ -109,6 +109,12 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         binding.btnCopy.setOnClickListener(v -> copySelectedFiles());
         binding.btnMove.setOnClickListener(v -> moveSelectedFiles());
         binding.btnPasteHere.setOnClickListener(v -> pasteFiles());
+        
+        // Handle new buttons
+        binding.btnDetails.setOnClickListener(v -> showFileDetails());
+        binding.btnSafeFolder.setOnClickListener(v -> moveToSafeFolder());
+        binding.btnOpenWith.setOnClickListener(v -> openWithApp());
+        binding.btnMore.setOnClickListener(v -> showMoreOptions());
     }
 
     private void loadFiles(File directory) {
@@ -215,7 +221,7 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
             if (clipboard.getOperationType() == FileClipboard.OperationType.COPY) {
                 binding.btnPasteHere.setText("انسخ هنا (" + clipboard.getCount() + " files)");
             } else {
-                binding.btnPasteHere.setText("الصق هنا (" + clipboard.getCount() + " files)");
+                binding.btnPasteHere.setText("انسخ هنا (" + clipboard.getCount() + " files)");
             }
         }
     }
@@ -343,6 +349,109 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         boolean isMove = clipboard.getOperationType() == FileClipboard.OperationType.MOVE;
 
         new PasteFilesTask(isMove).execute(filesToPaste.toArray(new File[0]));
+    }
+
+    private void showFileDetails() {
+        List<File> selectedFiles = fileAdapter.getSelectedItems();
+        if (selectedFiles.isEmpty()) return;
+        
+        // Show file details dialog
+        StringBuilder details = new StringBuilder();
+        for (File file : selectedFiles) {
+            details.append("Name: ").append(file.getName()).append("\n");
+            details.append("Path: ").append(file.getAbsolutePath()).append("\n");
+            if (file.isFile()) {
+                details.append("Size: ").append(formatFileSize(file.length())).append("\n");
+            }
+            details.append("Modified: ").append(new java.util.Date(file.lastModified())).append("\n\n");
+        }
+        
+        new AlertDialog.Builder(this)
+                .setTitle("File Details")
+                .setMessage(details.toString())
+                .setPositiveButton("OK", null)
+                .show();
+    }
+
+    private void moveToSafeFolder() {
+        // Placeholder for safe folder functionality
+        Toast.makeText(this, "Safe folder feature coming soon", Toast.LENGTH_SHORT).show();
+    }
+
+    private void openWithApp() {
+        List<File> selectedFiles = fileAdapter.getSelectedItems();
+        if (selectedFiles.isEmpty() || selectedFiles.size() > 1) {
+            Toast.makeText(this, "Please select a single file", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        File file = selectedFiles.get(0);
+        if (!file.isFile()) {
+            Toast.makeText(this, "Cannot open directory", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            Uri uri = FileProvider.getUriForFile(this, 
+                getApplicationContext().getPackageName() + ".provider", file);
+            intent.setDataAndType(uri, getMimeType(file.getName()));
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(intent, "Open with"));
+        } catch (Exception e) {
+            Toast.makeText(this, "No app found to open this file", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void showMoreOptions() {
+        // Show additional options in a bottom sheet or dialog
+        String[] options = {"Properties", "Create Shortcut", "Add to Favorites", "Scan with Antivirus"};
+        new AlertDialog.Builder(this)
+                .setTitle("More Options")
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            showFileDetails();
+                            break;
+                        case 1:
+                            Toast.makeText(this, "Create shortcut feature coming soon", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 2:
+                            Toast.makeText(this, "Add to favorites feature coming soon", Toast.LENGTH_SHORT).show();
+                            break;
+                        case 3:
+                            Toast.makeText(this, "Antivirus scan feature coming soon", Toast.LENGTH_SHORT).show();
+                            break;
+                    }
+                })
+                .show();
+    }
+
+    private String getMimeType(String fileName) {
+        String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
+        switch (extension) {
+            case "pdf": return "application/pdf";
+            case "jpg": case "jpeg": return "image/jpeg";
+            case "png": return "image/png";
+            case "gif": return "image/gif";
+            case "mp4": return "video/mp4";
+            case "mp3": return "audio/mpeg";
+            case "txt": return "text/plain";
+            case "doc": case "docx": return "application/msword";
+            case "xls": case "xlsx": return "application/vnd.ms-excel";
+            case "ppt": case "pptx": return "application/vnd.ms-powerpoint";
+            case "zip": return "application/zip";
+            case "apk": return "application/vnd.android.package-archive";
+            default: return "*/*";
+        }
+    }
+
+    private String formatFileSize(long bytes) {
+        if (bytes < 1024) return bytes + " B";
+        int unit = 1024;
+        if (bytes < unit * unit) return String.format("%.1f KB", bytes / (float) unit);
+        if (bytes < unit * unit * unit) return String.format("%.1f MB", bytes / (float) (unit * unit));
+        return String.format("%.1f GB", bytes / (float) (unit * unit * unit));
     }
 
     // ActionMode Callback
