@@ -57,8 +57,8 @@ public class FileCleanerActivity extends AppCompatActivity {
     private class CleanEmptyFoldersTask extends AsyncTask<Void, String, Integer> {
         @Override
         protected void onPreExecute() {
-            binding.progressBar.setVisibility(View.VISIBLE);
-            binding.progressBar.setIndeterminate(true);
+            binding.pbCleaner.setVisibility(View.VISIBLE);
+            binding.pbCleaner.setIndeterminate(true);
             binding.tvStatus.setText("Scanning...");
             binding.btnCleanEmptyFolders.setEnabled(false);
         }
@@ -131,7 +131,7 @@ public class FileCleanerActivity extends AppCompatActivity {
 
         @Override
         protected void onPostExecute(Integer result) {
-            binding.progressBar.setVisibility(View.GONE);
+            binding.pbCleaner.setVisibility(View.GONE);
             binding.btnCleanEmptyFolders.setEnabled(true);
             binding.tvStatus.setText("Finished");
 
