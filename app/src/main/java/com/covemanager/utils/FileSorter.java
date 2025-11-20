@@ -5,54 +5,55 @@ import java.util.Comparator;
 
 public class FileSorter {
 
-    public enum SortOption {
+    public enum SortField {
         NAME,
         SIZE,
         DATE,
         TYPE
     }
 
-    public static Comparator<File> getComparator(SortOption option) {
-        switch (option) {
-            case NAME:
-                return (f1, f2) -> {
-                    if (f1.isDirectory() && !f2.isDirectory()) return -1;
-                    if (!f1.isDirectory() && f2.isDirectory()) return 1;
-                    return f1.getName().compareToIgnoreCase(f2.getName());
-                };
-            case SIZE:
-                return (f1, f2) -> {
-                    if (f1.isDirectory() && !f2.isDirectory()) return -1;
-                    if (!f1.isDirectory() && f2.isDirectory()) return 1;
-                    // For directories, we might not know the size instantly, so fallback to name for now.
-                    // Or we assume directories are "smaller" or "larger".
-                    // Let's sort by size for files, and name for folders (since folder size calc is async).
-                    if (f1.isFile() && f2.isFile()) {
-                        return Long.compare(f2.length(), f1.length()); // Descending
-                    }
-                    return f1.getName().compareToIgnoreCase(f2.getName());
-                };
-            case DATE:
-                return (f1, f2) -> {
-                    if (f1.isDirectory() && !f2.isDirectory()) return -1;
-                    if (!f1.isDirectory() && f2.isDirectory()) return 1;
-                    return Long.compare(f2.lastModified(), f1.lastModified()); // Newest first
-                };
-            case TYPE:
-                return (f1, f2) -> {
-                    if (f1.isDirectory() && !f2.isDirectory()) return -1;
-                    if (!f1.isDirectory() && f2.isDirectory()) return 1;
-                    if (f1.isFile() && f2.isFile()) {
-                        String ext1 = getExtension(f1.getName());
-                        String ext2 = getExtension(f2.getName());
-                        int res = ext1.compareToIgnoreCase(ext2);
-                        if (res != 0) return res;
-                    }
-                    return f1.getName().compareToIgnoreCase(f2.getName());
-                };
-            default:
-                return getComparator(SortOption.NAME);
-        }
+    public enum SortMode {
+        FOLDERS_FIRST,
+        FILES_FIRST,
+        MIXED
+    }
+
+    public static Comparator<File> getComparator(SortField field, SortMode mode, boolean ascending) {
+        return (f1, f2) -> {
+            // Handle grouping (Folders First / Files First / Mixed)
+            if (mode == SortMode.FOLDERS_FIRST) {
+                if (f1.isDirectory() && !f2.isDirectory()) return -1;
+                if (!f1.isDirectory() && f2.isDirectory()) return 1;
+            } else if (mode == SortMode.FILES_FIRST) {
+                if (f1.isDirectory() && !f2.isDirectory()) return 1;
+                if (!f1.isDirectory() && f2.isDirectory()) return -1;
+            }
+            // If Mixed, or if both are same type (both folders or both files), sort by field
+
+            int result = 0;
+            switch (field) {
+                case SIZE:
+                    // For folders, we often don't have size, so fallback to name or treat as 0
+                    long s1 = f1.isDirectory() ? 0 : f1.length();
+                    long s2 = f2.isDirectory() ? 0 : f2.length();
+                    result = Long.compare(s1, s2);
+                    break;
+                case DATE:
+                    result = Long.compare(f1.lastModified(), f2.lastModified());
+                    break;
+                case TYPE:
+                    String ext1 = getExtension(f1.getName());
+                    String ext2 = getExtension(f2.getName());
+                    result = ext1.compareToIgnoreCase(ext2);
+                    break;
+                case NAME:
+                default:
+                    result = f1.getName().compareToIgnoreCase(f2.getName());
+                    break;
+            }
+
+            return ascending ? result : -result;
+        };
     }
 
     private static String getExtension(String name) {

@@ -1,6 +1,5 @@
 package com.covemanager;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -18,6 +17,7 @@ import android.widget.EditText;
 import android.widget.Toast;
 import com.covemanager.databinding.ActivityFileBrowserBinding;
 import com.covemanager.utils.FileSorter;
+import com.covemanager.utils.FileQueryCache;
 import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.io.File;
 import java.io.FileInputStream;
@@ -31,8 +31,7 @@ import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 import android.database.Cursor;
 import android.provider.MediaStore;
-import android.content.ContentResolver;
-import android.webkit.MimeTypeMap;
+import android.content.DialogInterface;
 
 /**
  * Complete FileBrowserActivity with modern file management features:
@@ -49,7 +48,11 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
     private FolderSizeCache cache;
     private ActionMode actionMode;
     private FileClipboard clipboard;
-    private FileSorter.SortOption currentSortOption = FileSorter.SortOption.NAME;
+
+    // Sorting Configuration
+    private FileSorter.SortField currentSortField = FileSorter.SortField.NAME;
+    private FileSorter.SortMode currentSortMode = FileSorter.SortMode.FOLDERS_FIRST;
+    private boolean isSortAscending = true;
 
     private boolean isQueryMode = false;
     private String queryType = "";
@@ -111,6 +114,12 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
     }
     }
 
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_file_browser, menu);
+        return true;
+    }
+
     private void setupRecyclerView() {
         binding.rvFiles.setLayoutManager(new LinearLayoutManager(this));
     }
@@ -141,6 +150,13 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         @Override
         protected List<FileItem> doInBackground(String... params) {
             String type = params[0];
+
+            // Check cache first
+            List<FileItem> cachedItems = FileQueryCache.getInstance().get(type);
+            if (cachedItems != null) {
+                return cachedItems;
+            }
+
             List<FileItem> items = new ArrayList<>();
 
             Uri collection;
@@ -199,11 +215,24 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
                 e.printStackTrace();
             }
 
+            // Cache results
+            FileQueryCache.getInstance().put(type, items);
+
             return items;
         }
 
         @Override
         protected void onPostExecute(List<FileItem> items) {
+            // Apply current sorting manually for query results if needed, or reload
+             // Since we just loaded them, let's sort them now before displaying
+            // Note: FileAdapter takes List<FileItem>, but FileSorter works on File[].
+            // We need to sort the FileItems.
+
+            // Simple bubble sort or Collections.sort would work here using a wrapper comparator
+            // For now, relying on MediaStore sortOrder (Date Descending) as a baseline,
+            // but true dynamic sorting for query results would require re-implementation.
+            // TODO: Implement sorting for Query Results
+
             if (fileAdapter != null) {
                 fileAdapter.cleanup();
             }
@@ -227,7 +256,7 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
 
         if (files != null) {
             // Sort files based on current sort option
-            Arrays.sort(files, FileSorter.getComparator(currentSortOption));
+            Arrays.sort(files, FileSorter.getComparator(currentSortField, currentSortMode, isSortAscending));
 
             // Add parent directory option if not at root
             if (directory.getParent() != null) {
@@ -519,28 +548,74 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
     }
 
     private void showSortOptions() {
-        String[] options = {"Name", "Size (Largest First)", "Date (Newest First)", "Type"};
+        String[] sortFields = {"Name", "Size", "Date", "Type"};
+        String[] sortModes = {"Folders First", "Files First", "Mixed"};
+
+        // We need a custom dialog layout or multi-choice logic
+        // For simplicity, let's use a single list that combines common options
+        // OR use a multi-step dialog.
+        // Let's go with a simpler single-choice list for now as requested "Comfortable and Organized"
+
+        String[] options = {
+            "Name (A-Z)", "Name (Z-A)",
+            "Size (Large-Small)", "Size (Small-Large)",
+            "Date (New-Old)", "Date (Old-New)",
+            "Folders First", "Files First", "Mixed"
+        };
+
         new MaterialAlertDialogBuilder(this)
-                .setTitle("Sort by")
+                .setTitle("Sort Options")
                 .setItems(options, (dialog, which) -> {
                     switch (which) {
                         case 0:
-                            currentSortOption = FileSorter.SortOption.NAME;
+                            currentSortField = FileSorter.SortField.NAME;
+                            isSortAscending = true;
                             break;
                         case 1:
-                            currentSortOption = FileSorter.SortOption.SIZE;
+                            currentSortField = FileSorter.SortField.NAME;
+                            isSortAscending = false;
                             break;
                         case 2:
-                            currentSortOption = FileSorter.SortOption.DATE;
+                            currentSortField = FileSorter.SortField.SIZE;
+                            isSortAscending = false;
                             break;
                         case 3:
-                            currentSortOption = FileSorter.SortOption.TYPE;
+                            currentSortField = FileSorter.SortField.SIZE;
+                            isSortAscending = true;
+                            break;
+                        case 4:
+                            currentSortField = FileSorter.SortField.DATE;
+                            isSortAscending = false;
+                            break;
+                        case 5:
+                            currentSortField = FileSorter.SortField.DATE;
+                            isSortAscending = true;
+                            break;
+                        case 6:
+                            currentSortMode = FileSorter.SortMode.FOLDERS_FIRST;
+                            break;
+                        case 7:
+                            currentSortMode = FileSorter.SortMode.FILES_FIRST;
+                            break;
+                        case 8:
+                            currentSortMode = FileSorter.SortMode.MIXED;
                             break;
                     }
                     if (!isQueryMode) loadFiles(currentDirectory);
-                    // In query mode, we would need to re-sort the existing list in adapter or re-query with sort order
                 })
                 .show();
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        if (item.getItemId() == android.R.id.home) {
+            finish();
+            return true;
+        } else if (item.getItemId() == R.id.action_sort) {
+            showSortOptions();
+            return true;
+        }
+        return super.onOptionsItemSelected(item);
     }
 
     private String getMimeType(String fileName) {
