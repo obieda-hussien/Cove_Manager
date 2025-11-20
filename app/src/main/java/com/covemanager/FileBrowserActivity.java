@@ -606,17 +606,6 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
                 .show();
     }
 
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        if (item.getItemId() == android.R.id.home) {
-            finish();
-            return true;
-        } else if (item.getItemId() == R.id.action_sort) {
-            showSortOptions();
-            return true;
-        }
-        return super.onOptionsItemSelected(item);
-    }
 
     private String getMimeType(String fileName) {
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
@@ -893,6 +882,9 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
     public boolean onOptionsItemSelected(MenuItem item) {
         if (item.getItemId() == android.R.id.home) {
             finish();
+            return true;
+        } else if (item.getItemId() == R.id.action_sort) {
+            showSortOptions();
             return true;
         }
         return super.onOptionsItemSelected(item);
