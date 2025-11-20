@@ -483,6 +483,17 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         Toast.makeText(this, "Safe folder feature coming soon", Toast.LENGTH_SHORT).show();
     }
 
+    private void openWithApp() {
+        List<File> selectedFiles = fileAdapter.getSelectedItems();
+        if (selectedFiles.isEmpty() || selectedFiles.size() > 1) {
+            Toast.makeText(this, "Please select a single file", Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        File file = selectedFiles.get(0);
+        openFile(file);
+    }
+
     private void showMoreOptions() {
         // Show additional options in a bottom sheet or dialog
         String[] options = {"Properties", "Create Shortcut", "Add to Favorites", "Scan with Antivirus"};
