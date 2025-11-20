@@ -32,6 +32,7 @@ import java.util.zip.ZipOutputStream;
 import android.database.Cursor;
 import android.provider.MediaStore;
 import android.content.DialogInterface;
+import com.covemanager.utils.PackageUtils;
 
 /**
  * Complete FileBrowserActivity with modern file management features:
@@ -298,6 +299,12 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
     }
 
     private void openFile(File file) {
+        // Special handling for APKs
+        if (file.getName().toLowerCase().endsWith(".apk")) {
+             PackageUtils.installPackage(this, file);
+             return;
+        }
+
         try {
             Intent intent = new Intent(Intent.ACTION_VIEW);
             Uri uri = FileProvider.getUriForFile(this,
