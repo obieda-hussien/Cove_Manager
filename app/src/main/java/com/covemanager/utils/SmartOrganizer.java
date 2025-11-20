@@ -39,6 +39,10 @@ public class SmartOrganizer {
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath(),
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getAbsolutePath(),
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath(),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PODCASTS).getAbsolutePath(),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_ALARMS).getAbsolutePath(),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_NOTIFICATIONS).getAbsolutePath(),
+                Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_RINGTONES).getAbsolutePath(),
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath(),
                 Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOWNLOADS).getAbsolutePath(), // Often messy, but maybe user intends it? Let's skip scanning INSIDE downloads for now to avoid moving temp files
                 new File(root, "Android").getAbsolutePath() // System files
@@ -71,24 +75,21 @@ public class SmartOrganizer {
         String name = file.getName().toLowerCase();
         String parent = file.getParent();
 
-        // Image Logic: If it's an image NOT in DCIM or Pictures
+        // Image Logic
         if (isImage(name)) {
-            String dcimPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DCIM).getAbsolutePath();
             String picturesPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_PICTURES).getAbsolutePath();
-
-            // We are already traversing folders NOT in standard paths (due to excludePaths check in recursion),
-            // but we double check here just in case.
-            // Actually, scanDirectory skips the folders themselves, so any file we reach here is by definition "misplaced" regarding the exclusion list.
-
             result.add(new MisplacedFile(file, picturesPath + File.separator + "Organized_Images"));
         }
-
         // Video Logic
         else if (isVideo(name)) {
              String moviesPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MOVIES).getAbsolutePath();
              result.add(new MisplacedFile(file, moviesPath + File.separator + "Organized_Videos"));
         }
-
+        // Audio Logic
+        else if (isAudio(name)) {
+            String musicPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC).getAbsolutePath();
+            result.add(new MisplacedFile(file, musicPath + File.separator + "Organized_Audio"));
+        }
         // Document Logic
         else if (isDocument(name)) {
             String documentsPath = Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_DOCUMENTS).getAbsolutePath();
@@ -101,11 +102,15 @@ public class SmartOrganizer {
     }
 
     private static boolean isVideo(String name) {
-        return name.endsWith(".mp4") || name.endsWith(".mkv") || name.endsWith(".mov") || name.endsWith(".avi");
+        return name.endsWith(".mp4") || name.endsWith(".mkv") || name.endsWith(".mov") || name.endsWith(".avi") || name.endsWith(".webm") || name.endsWith(".3gp");
+    }
+
+    private static boolean isAudio(String name) {
+        return name.endsWith(".mp3") || name.endsWith(".wav") || name.endsWith(".aac") || name.endsWith(".m4a") || name.endsWith(".ogg") || name.endsWith(".flac");
     }
 
     private static boolean isDocument(String name) {
-        return name.endsWith(".pdf") || name.endsWith(".doc") || name.endsWith(".docx") || name.endsWith(".txt");
+        return name.endsWith(".pdf") || name.endsWith(".doc") || name.endsWith(".docx") || name.endsWith(".txt") || name.endsWith(".xls") || name.endsWith(".xlsx") || name.endsWith(".ppt") || name.endsWith(".pptx");
     }
 
     public static boolean moveFile(File source, String destPath) {

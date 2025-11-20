@@ -12,6 +12,7 @@ import androidx.fragment.app.Fragment;
 import com.covemanager.FileCleanerActivity;
 import com.covemanager.R;
 import com.covemanager.databinding.FragmentToolsBinding;
+import com.covemanager.ui.dialogs.DuplicateFilesActivity;
 import com.covemanager.ui.dialogs.SmartOrganizerBottomSheet;
 
 public class ToolsFragment extends Fragment {
@@ -40,6 +41,11 @@ public class ToolsFragment extends Fragment {
         binding.toolSmartOrganizer.setOnClickListener(v -> {
             SmartOrganizerBottomSheet bottomSheet = new SmartOrganizerBottomSheet();
             bottomSheet.show(getParentFragmentManager(), "SmartOrganizer");
+        });
+
+        binding.toolDuplicateFinder.setOnClickListener(v -> {
+            Intent intent = new Intent(getContext(), DuplicateFilesActivity.class);
+            startActivity(intent);
         });
 
         // Add more tools here as needed
