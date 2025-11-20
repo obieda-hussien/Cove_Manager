@@ -184,6 +184,16 @@
                     android:textSize="12sp"
                     android:padding="8dp" />
 
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/btn_sort"
+                style="@style/Widget.MaterialComponents.Button.TextButton"
+                android:layout_width="0dp"
+                android:layout_height="wrap_content"
+                android:layout_weight="1"
+                android:text="Sort"
+                android:textSize="12sp"
+                android:padding="8dp" />
+
                 <com.google.android.material.button.MaterialButton
                     android:id="@+id/btn_more"
                     style="@style/Widget.MaterialComponents.Button.TextButton"

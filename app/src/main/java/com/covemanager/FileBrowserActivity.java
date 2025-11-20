@@ -17,6 +17,7 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.covemanager.databinding.ActivityFileBrowserBinding;
+import com.covemanager.utils.FileSorter;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -42,6 +43,7 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
     private FolderSizeCache cache;
     private ActionMode actionMode;
     private FileClipboard clipboard;
+    private FileSorter.SortOption currentSortOption = FileSorter.SortOption.NAME;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -115,6 +117,7 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         binding.btnSafeFolder.setOnClickListener(v -> moveToSafeFolder());
         binding.btnOpenWith.setOnClickListener(v -> openWithApp());
         binding.btnMore.setOnClickListener(v -> showMoreOptions());
+        binding.btnSort.setOnClickListener(v -> showSortOptions());
     }
 
     private void loadFiles(File directory) {
@@ -131,16 +134,8 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         List<FileItem> fileItems = new ArrayList<>();
 
         if (files != null) {
-            // Sort files: directories first, then files, alphabetically
-            Arrays.sort(files, (f1, f2) -> {
-                if (f1.isDirectory() && !f2.isDirectory()) {
-                    return -1;
-                } else if (!f1.isDirectory() && f2.isDirectory()) {
-                    return 1;
-                } else {
-                    return f1.getName().compareToIgnoreCase(f2.getName());
-                }
-            });
+            // Sort files based on current sort option
+            Arrays.sort(files, FileSorter.getComparator(currentSortOption));
 
             // Add parent directory option if not at root
             if (directory.getParent() != null) {
@@ -423,6 +418,30 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
                             Toast.makeText(this, "Antivirus scan feature coming soon", Toast.LENGTH_SHORT).show();
                             break;
                     }
+                })
+                .show();
+    }
+
+    private void showSortOptions() {
+        String[] options = {"Name", "Size (Largest First)", "Date (Newest First)", "Type"};
+        new AlertDialog.Builder(this)
+                .setTitle("Sort by")
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            currentSortOption = FileSorter.SortOption.NAME;
+                            break;
+                        case 1:
+                            currentSortOption = FileSorter.SortOption.SIZE;
+                            break;
+                        case 2:
+                            currentSortOption = FileSorter.SortOption.DATE;
+                            break;
+                        case 3:
+                            currentSortOption = FileSorter.SortOption.TYPE;
+                            break;
+                    }
+                    loadFiles(currentDirectory);
                 })
                 .show();
     }
