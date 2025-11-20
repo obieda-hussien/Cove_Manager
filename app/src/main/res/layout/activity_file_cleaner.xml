@@ -37,28 +37,29 @@
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="File Cleaner"
+                android:text="Clean Storage"
                 android:textColor="@color/textColorPrimary"
                 android:textSize="24sp"
                 android:textStyle="bold"
-                android:layout_marginBottom="16dp" />
+                android:layout_marginBottom="8dp" />
 
             <TextView
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
-                android:text="Clean temporary files, cache, and junk files to free up storage space."
+                android:text="Tools to keep your device organized and clutter-free."
                 android:textColor="@color/textColorSecondary"
                 android:textSize="16sp"
                 android:layout_marginBottom="24dp" />
 
-            <!-- Placeholder for future file cleaner functionality -->
+            <!-- Empty Folders Cleaner -->
             <com.google.android.material.card.MaterialCardView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:layout_margin="2dp"
-                app:cardBackgroundColor="@color/colorCardBackground"
-                app:cardCornerRadius="12dp"
-                app:cardElevation="1dp">
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
 
                 <LinearLayout
                     android:layout_width="match_parent"
@@ -69,21 +70,106 @@
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="File Cleaner features coming soon..."
-                        android:textColor="@color/textColorPrimary"
-                        android:textSize="16sp"
+                        android:text="Empty Folders"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="18sp"
                         android:textStyle="bold" />
 
                     <TextView
                         android:layout_width="wrap_content"
                         android:layout_height="wrap_content"
-                        android:text="This tool will help you clean temporary files, cache, and free up storage space."
-                        android:textColor="@color/textColorSecondary"
+                        android:text="Scan and delete folder that contain no files."
+                        android:textColor="?attr/colorOnSurfaceVariant"
                         android:textSize="14sp"
-                        android:layout_marginTop="8dp" />
+                        android:layout_marginTop="4dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_clean_empty_folders"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Clean Now"
+                        android:layout_marginTop="12dp"
+                        style="@style/Widget.Material3.Button.TonalButton"/>
 
                 </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
 
+            <!-- Duplicate Finder -->
+            <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Duplicate Files"
+                        android:textColor="?attr/colorOnSurface"
+                        android:textSize="18sp"
+                        android:textStyle="bold" />
+
+                    <TextView
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Find and remove duplicate files to save space."
+                        android:textColor="?attr/colorOnSurfaceVariant"
+                        android:textSize="14sp"
+                        android:layout_marginTop="4dp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_find_duplicates"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Scan Now"
+                        android:layout_marginTop="12dp"
+                        style="@style/Widget.Material3.Button.TonalButton"/>
+
+                </LinearLayout>
+            </com.google.android.material.card.MaterialCardView>
+
+            <!-- Progress Section -->
+             <com.google.android.material.card.MaterialCardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_marginBottom="16dp"
+                app:cardBackgroundColor="?attr/colorSurfaceContainer"
+                app:cardCornerRadius="16dp"
+                app:cardElevation="0dp"
+                app:strokeWidth="0dp">
+
+                 <LinearLayout
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:orientation="vertical"
+                    android:padding="16dp">
+
+                    <TextView
+                        android:id="@+id/tv_status"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Ready to clean"
+                        android:textColor="?attr/colorOnSurface"
+                         />
+
+                    <ProgressBar
+                        android:id="@+id/pb_cleaner"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        style="?android:attr/progressBarStyleHorizontal"
+                        android:indeterminate="true"
+                        android:visibility="invisible"
+                        android:layout_marginTop="8dp"/>
+                 </LinearLayout>
             </com.google.android.material.card.MaterialCardView>
 
         </LinearLayout>

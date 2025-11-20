@@ -1,33 +1,47 @@
 <resources xmlns:tools="http://schemas.android.com/tools">
-  <!-- Base application theme using Material Components -->
-  <style name="Theme.CoveManager" parent="Theme.MaterialComponents.DayNight.NoActionBar">
-    <!-- Primary colors -->
-    <item name="colorPrimary">@color/colorPrimary</item>
-    <item name="colorPrimaryDark">@color/colorPrimaryDark</item>
-    <item name="colorPrimaryVariant">@color/colorPrimaryDark</item>
-    
-    <!-- Background colors -->
-    <item name="android:windowBackground">@color/colorBackground</item>
-    <item name="colorSurface">@color/colorCardBackground</item>
-    
-    <!-- Text colors -->
-    <item name="android:textColorPrimary">@color/textColorPrimary</item>
-    <item name="android:textColorSecondary">@color/textColorSecondary</item>
-    
-    <!-- Status bar -->
-    <item name="android:statusBarColor">@color/colorPrimaryDark</item>
-    <item name="android:windowLightStatusBar">false</item>
-    
-    <!-- Use system default font family -->
-    <item name="android:fontFamily">sans-serif</item>
-  </style>
+    <!-- Base application theme using Material 3 -->
+    <style name="Theme.CoveManager" parent="Theme.Material3.DayNight.NoActionBar">
+        <!-- Primary brand color will be overridden by dynamic colors on supported devices -->
+        <item name="colorPrimary">@color/colorPrimary</item>
+        <item name="colorPrimaryContainer">@color/colorPrimaryContainer</item>
+        <item name="colorOnPrimary">@color/colorOnPrimary</item>
+        <item name="colorOnPrimaryContainer">@color/colorOnPrimaryContainer</item>
 
-  <!-- Alias for compatibility -->
-  <style name="AppTheme" parent="Theme.CoveManager" />
-  
-  <!-- Shape appearance for circular images -->
-  <style name="ShapeAppearance.Material3.Corner.Full" parent="">
-    <item name="cornerFamily">rounded</item>
-    <item name="cornerSize">50%</item>
-  </style>
+        <!-- Secondary brand color -->
+        <item name="colorSecondary">@color/colorSecondary</item>
+        <item name="colorSecondaryContainer">@color/colorSecondaryContainer</item>
+        <item name="colorOnSecondary">@color/colorOnSecondary</item>
+        <item name="colorOnSecondaryContainer">@color/colorOnSecondaryContainer</item>
+
+        <!-- Tertiary brand color -->
+        <item name="colorTertiary">@color/colorTertiary</item>
+        <item name="colorTertiaryContainer">@color/colorTertiaryContainer</item>
+        <item name="colorOnTertiary">@color/colorOnTertiary</item>
+        <item name="colorOnTertiaryContainer">@color/colorOnTertiaryContainer</item>
+
+        <!-- Background & Surface -->
+        <item name="android:colorBackground">@color/colorBackground</item>
+        <item name="colorSurface">@color/colorSurface</item>
+        <item name="colorSurfaceVariant">@color/colorSurfaceVariant</item>
+        <item name="colorOnSurface">@color/colorOnSurface</item>
+        <item name="colorOnSurfaceVariant">@color/colorOnSurfaceVariant</item>
+
+        <!-- Status bar & Window -->
+        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar">true</item>
+
+        <!-- Navigation Bar -->
+        <item name="android:navigationBarColor">@android:color/transparent</item>
+        <item name="android:windowLightNavigationBar">true</item>
+
+        <!-- ActionMode Overlay -->
+        <item name="windowActionModeOverlay">true</item>
+        <item name="actionModeStyle">@style/Widget.Material3.ActionMode</item>
+        <item name="actionModeBackground">@color/colorSurface</item>
+
+        <!-- Customize your theme here -->
+    </style>
+
+    <!-- Alias for compatibility -->
+    <style name="AppTheme" parent="Theme.CoveManager" />
 </resources>

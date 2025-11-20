@@ -2,6 +2,7 @@ package com.covemanager;
 
 import android.app.Application;
 import android.util.Log;
+import com.google.android.material.color.DynamicColors;
 
 /**
  * Custom Application class for Cove Manager
@@ -15,6 +16,9 @@ public class CoveManagerApplication extends Application {
     public void onCreate() {
         super.onCreate();
         
+        // Enable Dynamic Colors (Material You) for the entire app
+        DynamicColors.applyToActivitiesIfAvailable(this);
+
         Log.i(TAG, "Cove Manager Application starting...");
         
         // Initialize the debug error tracker

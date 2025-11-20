@@ -1,6 +1,5 @@
 package com.covemanager;
 
-import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.content.FileProvider;
 import androidx.recyclerview.widget.LinearLayoutManager;
@@ -17,6 +16,9 @@ import android.view.View;
 import android.widget.EditText;
 import android.widget.Toast;
 import com.covemanager.databinding.ActivityFileBrowserBinding;
+import com.covemanager.utils.FileSorter;
+import com.covemanager.utils.FileQueryCache;
+import com.google.android.material.dialog.MaterialAlertDialogBuilder;
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -27,6 +29,10 @@ import java.util.Arrays;
 import java.util.List;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
+import android.database.Cursor;
+import android.provider.MediaStore;
+import android.content.DialogInterface;
+import com.covemanager.utils.PackageUtils;
 
 /**
  * Complete FileBrowserActivity with modern file management features:
@@ -34,6 +40,7 @@ import java.util.zip.ZipOutputStream;
  * - Full file operations: delete, rename, share, compress, copy, move
  * - FileClipboard integration for cross-directory operations
  * - Modern Material Design UI
+ * - Smart Query Mode for Categories (APKs, Images, etc.)
  */
 public class FileBrowserActivity extends AppCompatActivity implements FileAdapter.OnFileClickListener {
     private ActivityFileBrowserBinding binding;
@@ -42,6 +49,14 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
     private FolderSizeCache cache;
     private ActionMode actionMode;
     private FileClipboard clipboard;
+
+    // Sorting Configuration
+    private FileSorter.SortField currentSortField = FileSorter.SortField.NAME;
+    private FileSorter.SortMode currentSortMode = FileSorter.SortMode.FOLDERS_FIRST;
+    private boolean isSortAscending = true;
+
+    private boolean isQueryMode = false;
+    private String queryType = "";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,28 +80,31 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         cache = FolderSizeCache.getInstance();
         clipboard = FileClipboard.getInstance();
 
-        // Set initial directory
-        String initialPath = getIntent().getStringExtra("initial_path");
-        if (initialPath == null) {
-            initialPath = getIntent().getStringExtra("path");
-        }
-        if (initialPath != null) {
-            currentDirectory = new File(initialPath);
+        // Determine mode (Browser vs Query)
+        String mode = getIntent().getStringExtra("mode");
+        if ("query".equals(mode)) {
+            isQueryMode = true;
+            queryType = getIntent().getStringExtra("query_type");
+            setupRecyclerView();
+            setupActionBarButtons();
+            loadQueryResults(queryType);
         } else {
-            currentDirectory = Environment.getExternalStorageDirectory();
+            // Browser Mode
+            String initialPath = getIntent().getStringExtra("initial_path");
+            if (initialPath == null) {
+                initialPath = getIntent().getStringExtra("path");
+            }
+            if (initialPath != null) {
+                currentDirectory = new File(initialPath);
+            } else {
+                currentDirectory = Environment.getExternalStorageDirectory();
+            }
+
+            setupRecyclerView();
+            setupActionBarButtons();
+            updatePasteButtonVisibility();
+            loadFiles(currentDirectory);
         }
-
-        // Set up RecyclerView
-        setupRecyclerView();
-
-        // Set up action bar buttons
-        setupActionBarButtons();
-
-        // Check clipboard state
-        updatePasteButtonVisibility();
-
-        // Load files
-        loadFiles(currentDirectory);
 
         // Log successful initialization
         ErrorLogger.logInfo(this, "FileBrowserActivity", "Activity onCreate completed successfully");
@@ -95,6 +113,12 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         ErrorLogger.logError(this, "FileBrowserActivity", "Error during onCreate", e);
         finish(); // Close activity if critical error occurs
     }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_file_browser, menu);
+        return true;
     }
 
     private void setupRecyclerView() {
@@ -115,6 +139,107 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         binding.btnSafeFolder.setOnClickListener(v -> moveToSafeFolder());
         binding.btnOpenWith.setOnClickListener(v -> openWithApp());
         binding.btnMore.setOnClickListener(v -> showMoreOptions());
+        binding.btnSort.setOnClickListener(v -> showSortOptions());
+    }
+
+    private void loadQueryResults(String type) {
+        binding.tvCurrentPath.setText("Category: " + type.toUpperCase());
+        new LoadQueryTask().execute(type);
+    }
+
+    private class LoadQueryTask extends AsyncTask<String, Void, List<FileItem>> {
+        @Override
+        protected List<FileItem> doInBackground(String... params) {
+            String type = params[0];
+
+            // Check cache first
+            List<FileItem> cachedItems = FileQueryCache.getInstance().get(type);
+            if (cachedItems != null) {
+                return cachedItems;
+            }
+
+            List<FileItem> items = new ArrayList<>();
+
+            Uri collection;
+            String[] projection = {MediaStore.Files.FileColumns.DATA};
+            String selection = null;
+            String[] selectionArgs = null;
+            String sortOrder = MediaStore.Files.FileColumns.DATE_ADDED + " DESC";
+
+            if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.Q) {
+                collection = MediaStore.Files.getContentUri(MediaStore.VOLUME_EXTERNAL);
+            } else {
+                collection = MediaStore.Files.getContentUri("external");
+            }
+
+            switch (type) {
+                case "apks":
+                    selection = MediaStore.Files.FileColumns.MIME_TYPE + "=?";
+                    selectionArgs = new String[]{"application/vnd.android.package-archive"};
+                    break;
+                case "images":
+                    selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "=?";
+                    selectionArgs = new String[]{String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_IMAGE)};
+                    break;
+                case "videos":
+                    selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "=?";
+                    selectionArgs = new String[]{String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_VIDEO)};
+                    break;
+                case "audio":
+                    selection = MediaStore.Files.FileColumns.MEDIA_TYPE + "=?";
+                    selectionArgs = new String[]{String.valueOf(MediaStore.Files.FileColumns.MEDIA_TYPE_AUDIO)};
+                    break;
+                case "documents":
+                    // Simplified check for docs
+                    selection = MediaStore.Files.FileColumns.MIME_TYPE + " IN (?, ?, ?, ?)";
+                    selectionArgs = new String[]{
+                        "application/pdf",
+                        "application/msword",
+                        "application/vnd.openxmlformats-officedocument.wordprocessingml.document",
+                        "text/plain"
+                    };
+                    break;
+            }
+
+            try (Cursor cursor = getContentResolver().query(collection, projection, selection, selectionArgs, sortOrder)) {
+                if (cursor != null) {
+                    int dataColumn = cursor.getColumnIndexOrThrow(MediaStore.Files.FileColumns.DATA);
+                    while (cursor.moveToNext()) {
+                        String path = cursor.getString(dataColumn);
+                        File file = new File(path);
+                        if (file.exists()) {
+                            items.add(new FileItem(file));
+                        }
+                    }
+                }
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+
+            // Cache results
+            FileQueryCache.getInstance().put(type, items);
+
+            return items;
+        }
+
+        @Override
+        protected void onPostExecute(List<FileItem> items) {
+            // Apply current sorting manually for query results if needed, or reload
+             // Since we just loaded them, let's sort them now before displaying
+            // Note: FileAdapter takes List<FileItem>, but FileSorter works on File[].
+            // We need to sort the FileItems.
+
+            // Simple bubble sort or Collections.sort would work here using a wrapper comparator
+            // For now, relying on MediaStore sortOrder (Date Descending) as a baseline,
+            // but true dynamic sorting for query results would require re-implementation.
+            // TODO: Implement sorting for Query Results
+
+            if (fileAdapter != null) {
+                fileAdapter.cleanup();
+            }
+            fileAdapter = new FileAdapter(items, FileBrowserActivity.this);
+            binding.rvFiles.setAdapter(fileAdapter);
+        }
     }
 
     private void loadFiles(File directory) {
@@ -131,16 +256,8 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         List<FileItem> fileItems = new ArrayList<>();
 
         if (files != null) {
-            // Sort files: directories first, then files, alphabetically
-            Arrays.sort(files, (f1, f2) -> {
-                if (f1.isDirectory() && !f2.isDirectory()) {
-                    return -1;
-                } else if (!f1.isDirectory() && f2.isDirectory()) {
-                    return 1;
-                } else {
-                    return f1.getName().compareToIgnoreCase(f2.getName());
-                }
-            });
+            // Sort files based on current sort option
+            Arrays.sort(files, FileSorter.getComparator(currentSortField, currentSortMode, isSortAscending));
 
             // Add parent directory option if not at root
             if (directory.getParent() != null) {
@@ -176,8 +293,27 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
                 loadFiles(fileItem.getFile());
             }
         } else {
-            // Handle file click (could open file viewer, etc.)
-            Toast.makeText(this, "File: " + fileItem.getName(), Toast.LENGTH_SHORT).show();
+            // Handle file click
+            openFile(fileItem.getFile());
+        }
+    }
+
+    private void openFile(File file) {
+        // Special handling for APKs
+        if (file.getName().toLowerCase().endsWith(".apk")) {
+             PackageUtils.installPackage(this, file);
+             return;
+        }
+
+        try {
+            Intent intent = new Intent(Intent.ACTION_VIEW);
+            Uri uri = FileProvider.getUriForFile(this,
+                getApplicationContext().getPackageName() + ".provider", file);
+            intent.setDataAndType(uri, getMimeType(file.getName()));
+            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
+            startActivity(Intent.createChooser(intent, "Open with"));
+        } catch (Exception e) {
+            Toast.makeText(this, "No app found to open this file", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -192,6 +328,10 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
             actionMode = startActionMode(new ActionModeCallback());
         }
         binding.layoutActionBar.setVisibility(View.VISIBLE);
+
+        // Hide standard toolbar content if needed, or just rely on ActionMode overlay
+        // If using WindowActionModeOverlay, the CAB will cover the toolbar.
+        // If not, we might need to manually hide elements.
     }
 
     @Override
@@ -219,9 +359,9 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         } else {
             binding.btnPasteHere.setVisibility(View.VISIBLE);
             if (clipboard.getOperationType() == FileClipboard.OperationType.COPY) {
-                binding.btnPasteHere.setText("انسخ هنا (" + clipboard.getCount() + " files)");
+                binding.btnPasteHere.setText("Copy Here (" + clipboard.getCount() + " files)");
             } else {
-                binding.btnPasteHere.setText("انسخ هنا (" + clipboard.getCount() + " files)");
+                binding.btnPasteHere.setText("Move Here (" + clipboard.getCount() + " files)");
             }
         }
     }
@@ -231,7 +371,7 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         List<File> selectedFiles = fileAdapter.getSelectedItems();
         if (selectedFiles.isEmpty()) return;
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Delete Files")
                 .setMessage("Are you sure you want to delete " + selectedFiles.size() + " item(s)?")
                 .setPositiveButton("Delete", (dialog, which) -> {
@@ -249,7 +389,7 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         EditText editText = new EditText(this);
         editText.setText(file.getName());
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Rename File")
                 .setView(editText)
                 .setPositiveButton("Rename", (dialog, which) -> {
@@ -260,7 +400,8 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
                             cache.invalidatePath(file.getParent());
                             Toast.makeText(this, "File renamed successfully", Toast.LENGTH_SHORT).show();
                             fileAdapter.endSelectionMode();
-                            loadFiles(currentDirectory);
+                            if (!isQueryMode) loadFiles(currentDirectory);
+                            else loadQueryResults(queryType);
                         } else {
                             Toast.makeText(this, "Failed to rename file", Toast.LENGTH_SHORT).show();
                         }
@@ -305,7 +446,7 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         EditText editText = new EditText(this);
         editText.setText("archive.zip");
 
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("Compress Files")
                 .setMessage("Enter ZIP file name:")
                 .setView(editText)
@@ -366,7 +507,7 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
             details.append("Modified: ").append(new java.util.Date(file.lastModified())).append("\n\n");
         }
         
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("File Details")
                 .setMessage(details.toString())
                 .setPositiveButton("OK", null)
@@ -386,27 +527,13 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         }
 
         File file = selectedFiles.get(0);
-        if (!file.isFile()) {
-            Toast.makeText(this, "Cannot open directory", Toast.LENGTH_SHORT).show();
-            return;
-        }
-
-        try {
-            Intent intent = new Intent(Intent.ACTION_VIEW);
-            Uri uri = FileProvider.getUriForFile(this, 
-                getApplicationContext().getPackageName() + ".provider", file);
-            intent.setDataAndType(uri, getMimeType(file.getName()));
-            intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
-            startActivity(Intent.createChooser(intent, "Open with"));
-        } catch (Exception e) {
-            Toast.makeText(this, "No app found to open this file", Toast.LENGTH_SHORT).show();
-        }
+        openFile(file);
     }
 
     private void showMoreOptions() {
         // Show additional options in a bottom sheet or dialog
         String[] options = {"Properties", "Create Shortcut", "Add to Favorites", "Scan with Antivirus"};
-        new AlertDialog.Builder(this)
+        new MaterialAlertDialogBuilder(this)
                 .setTitle("More Options")
                 .setItems(options, (dialog, which) -> {
                     switch (which) {
@@ -426,6 +553,66 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
                 })
                 .show();
     }
+
+    private void showSortOptions() {
+        String[] sortFields = {"Name", "Size", "Date", "Type"};
+        String[] sortModes = {"Folders First", "Files First", "Mixed"};
+
+        // We need a custom dialog layout or multi-choice logic
+        // For simplicity, let's use a single list that combines common options
+        // OR use a multi-step dialog.
+        // Let's go with a simpler single-choice list for now as requested "Comfortable and Organized"
+
+        String[] options = {
+            "Name (A-Z)", "Name (Z-A)",
+            "Size (Large-Small)", "Size (Small-Large)",
+            "Date (New-Old)", "Date (Old-New)",
+            "Folders First", "Files First", "Mixed"
+        };
+
+        new MaterialAlertDialogBuilder(this)
+                .setTitle("Sort Options")
+                .setItems(options, (dialog, which) -> {
+                    switch (which) {
+                        case 0:
+                            currentSortField = FileSorter.SortField.NAME;
+                            isSortAscending = true;
+                            break;
+                        case 1:
+                            currentSortField = FileSorter.SortField.NAME;
+                            isSortAscending = false;
+                            break;
+                        case 2:
+                            currentSortField = FileSorter.SortField.SIZE;
+                            isSortAscending = false;
+                            break;
+                        case 3:
+                            currentSortField = FileSorter.SortField.SIZE;
+                            isSortAscending = true;
+                            break;
+                        case 4:
+                            currentSortField = FileSorter.SortField.DATE;
+                            isSortAscending = false;
+                            break;
+                        case 5:
+                            currentSortField = FileSorter.SortField.DATE;
+                            isSortAscending = true;
+                            break;
+                        case 6:
+                            currentSortMode = FileSorter.SortMode.FOLDERS_FIRST;
+                            break;
+                        case 7:
+                            currentSortMode = FileSorter.SortMode.FILES_FIRST;
+                            break;
+                        case 8:
+                            currentSortMode = FileSorter.SortMode.MIXED;
+                            break;
+                    }
+                    if (!isQueryMode) loadFiles(currentDirectory);
+                })
+                .show();
+    }
+
 
     private String getMimeType(String fileName) {
         String extension = fileName.substring(fileName.lastIndexOf(".") + 1).toLowerCase();
@@ -511,9 +698,13 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         @Override
         protected void onPostExecute(Boolean success) {
             try {
-                cache.invalidatePath(currentDirectory.getAbsolutePath());
+                if (!isQueryMode) {
+                    cache.invalidatePath(currentDirectory.getAbsolutePath());
+                    loadFiles(currentDirectory);
+                } else {
+                     loadQueryResults(queryType);
+                }
                 fileAdapter.endSelectionMode();
-                loadFiles(currentDirectory);
                 
                 if (success) {
                     Toast.makeText(FileBrowserActivity.this, "Files deleted successfully", Toast.LENGTH_SHORT).show();
@@ -571,9 +762,11 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
 
         @Override
         protected void onPostExecute(Boolean success) {
-            cache.invalidatePath(currentDirectory.getAbsolutePath());
+            if (!isQueryMode) {
+                cache.invalidatePath(currentDirectory.getAbsolutePath());
+                loadFiles(currentDirectory);
+            }
             fileAdapter.endSelectionMode();
-            loadFiles(currentDirectory);
             
             if (success) {
                 Toast.makeText(FileBrowserActivity.this, "Files compressed to " + zipFileName, Toast.LENGTH_SHORT).show();
@@ -641,8 +834,10 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         protected void onPostExecute(Boolean success) {
             clipboard.clear();
             updatePasteButtonVisibility();
-            cache.invalidatePath(currentDirectory.getAbsolutePath());
-            loadFiles(currentDirectory);
+            if (!isQueryMode) {
+                cache.invalidatePath(currentDirectory.getAbsolutePath());
+                loadFiles(currentDirectory);
+            }
             
             String operation = isMove ? "moved" : "copied";
             if (success) {
@@ -695,6 +890,9 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
         if (item.getItemId() == android.R.id.home) {
             finish();
             return true;
+        } else if (item.getItemId() == R.id.action_sort) {
+            showSortOptions();
+            return true;
         }
         return super.onOptionsItemSelected(item);
     }
@@ -702,7 +900,7 @@ public class FileBrowserActivity extends AppCompatActivity implements FileAdapte
     @Override
     public void onBackPressed() {
         // Navigate up one directory level instead of closing activity
-        if (currentDirectory.getParent() != null) {
+        if (!isQueryMode && currentDirectory != null && currentDirectory.getParent() != null) {
             loadFiles(new File(currentDirectory.getParent()));
         } else {
             super.onBackPressed();
