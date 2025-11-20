@@ -1,15 +1,41 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <!-- Core app colors inspired by clean, modern design -->
-    <color name="colorPrimary">#4A69FF</color>
-    <color name="colorPrimaryDark">#3B54CC</color>
-    <color name="colorBackground">#F5F7FA</color>
-    <color name="colorCardBackground">#FFFFFF</color>
-    <color name="textColorPrimary">#2D3748</color>
-    <color name="textColorSecondary">#718096</color>
-    <color name="colorIconTint">#8A96A8</color>
-    <color name="colorError">#E53E3E</color>
+    <!-- Base Colors (M3 Baseline) - Will be dynamic on supported devices -->
+    <color name="colorPrimary">#6750A4</color>
+    <color name="colorOnPrimary">#FFFFFF</color>
+    <color name="colorPrimaryContainer">#EADDFF</color>
+    <color name="colorOnPrimaryContainer">#21005D</color>
+
+    <color name="colorSecondary">#625B71</color>
+    <color name="colorOnSecondary">#FFFFFF</color>
+    <color name="colorSecondaryContainer">#E8DEF8</color>
+    <color name="colorOnSecondaryContainer">#1D192B</color>
+
+    <color name="colorTertiary">#7D5260</color>
+    <color name="colorOnTertiary">#FFFFFF</color>
+    <color name="colorTertiaryContainer">#FFD8E4</color>
+    <color name="colorOnTertiaryContainer">#31111D</color>
     
+    <color name="colorError">#B3261E</color>
+    <color name="colorOnError">#FFFFFF</color>
+    <color name="colorErrorContainer">#F9DEDC</color>
+    <color name="colorOnErrorContainer">#410E0B</color>
+
+    <color name="colorBackground">#FFFBFE</color>
+    <color name="colorOnBackground">#1C1B1F</color>
+    <color name="colorSurface">#FFFBFE</color>
+    <color name="colorOnSurface">#1C1B1F</color>
+    <color name="colorSurfaceVariant">#E7E0EC</color>
+    <color name="colorOnSurfaceVariant">#49454F</color>
+    <color name="colorOutline">#79747E</color>
+
+    <!-- Legacy/Custom Colors -->
+    <color name="colorPrimaryDark">#21005D</color> <!-- Mapped to M3 Dark Primary equivalent -->
+    <color name="colorCardBackground">#FFFFFF</color>
+    <color name="textColorPrimary">#1C1B1F</color>
+    <color name="textColorSecondary">#49454F</color>
+    <color name="colorIconTint">#49454F</color>
+
     <!-- Debug colors for better contrast -->
     <color name="debugBackground">#F8F9FA</color>
     <color name="debugTextPrimary">#2D3748</color>

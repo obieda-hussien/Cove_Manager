@@ -67,149 +67,134 @@
             android:background="@color/colorBackground" />
 
         <!-- Bottom Action Bar (hidden by default) -->
-        <LinearLayout
+        <!-- Used ConstraintLayout for better fitting and scrolling if needed -->
+        <com.google.android.material.card.MaterialCardView
             android:id="@+id/layout_action_bar"
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:background="@color/colorCardBackground"
-            android:elevation="2dp"
-            android:orientation="vertical"
-            android:padding="8dp"
-            android:layout_marginTop="1dp"
-            android:visibility="gone">
+            android:visibility="gone"
+            app:cardBackgroundColor="?attr/colorSurfaceContainer"
+            app:cardElevation="8dp"
+            app:cardCornerRadius="16dp"
+            android:layout_margin="8dp">
 
-            <!-- First Row of Action Buttons -->
-            <LinearLayout
+            <HorizontalScrollView
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal">
+                android:scrollbars="none"
+                android:padding="8dp">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_details"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
+                <LinearLayout
+                    android:layout_width="wrap_content"
                     android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="التفاصيل"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    android:orientation="horizontal">
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_copy"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="نسخ إلى"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_details"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Details"
+                        android:layout_marginEnd="8dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_safe_folder"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="المجلد الآمن"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_open_with"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Open With"
+                        android:layout_marginEnd="8dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_rename"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="إعادة تسمية"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_copy"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Copy"
+                        android:layout_marginEnd="8dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_open_with"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="افتح باستخدام"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_move"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Move"
+                        android:layout_marginEnd="8dp" />
 
-            </LinearLayout>
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_rename"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Rename"
+                        android:layout_marginEnd="8dp" />
 
-            <!-- Second Row of Action Buttons -->
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_marginTop="4dp">
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_share"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Share"
+                        android:layout_marginEnd="8dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_move"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="نقل إلى"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_compress"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Zip"
+                        android:layout_marginEnd="8dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_delete"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="حذف"
-                    android:textColor="@color/colorError"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_safe_folder"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Safe Folder"
+                        android:layout_marginEnd="8dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_share"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="مشاركة"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_delete"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Delete"
+                        android:textColor="@color/colorError"
+                        app:backgroundTint="@color/colorErrorContainer"
+                        android:layout_marginEnd="8dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_compress"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="مجلد مضغوط"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_sort"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="Sort"
+                        android:layout_marginEnd="8dp" />
 
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/btn_more"
-                    style="@style/Widget.MaterialComponents.Button.TextButton"
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="المزيد"
-                    android:textSize="12sp"
-                    android:padding="8dp" />
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/btn_more"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:text="More" />
 
-            </LinearLayout>
-
-        </LinearLayout>
+                </LinearLayout>
+            </HorizontalScrollView>
+        </com.google.android.material.card.MaterialCardView>
 
         <!-- Paste Button (hidden by default) -->
-        <com.google.android.material.button.MaterialButton
+        <com.google.android.material.floatingactionbutton.ExtendedFloatingActionButton
             android:id="@+id/btn_paste_here"
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_margin="12dp"
-            android:padding="16dp"
-            android:text="انسخ هنا"
+            android:layout_gravity="bottom|end"
+            android:layout_margin="16dp"
+            android:text="Paste Here"
             android:textColor="@android:color/white"
             android:visibility="gone"
             app:backgroundTint="@color/colorPrimary"
-            app:cornerRadius="12dp" />
+            app:icon="@drawable/ic_category_documents"
+            app:iconTint="@android:color/white" />
 
     </LinearLayout>
 

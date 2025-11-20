@@ -1,0 +1,14 @@
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:id="@+id/navigation_home"
+        android:icon="@drawable/ic_home_24"
+        android:title="Home" />
+    <item
+        android:id="@+id/navigation_browse"
+        android:icon="@drawable/ic_folder_open_24"
+        android:title="Browse" />
+    <item
+        android:id="@+id/navigation_tools"
+        android:icon="@drawable/ic_build_24"
+        android:title="Tools" />
+</menu>
